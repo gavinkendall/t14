@@ -3,7 +3,7 @@
 //     Copyright (c) Gavin Kendall. All rights reserved.
 // </copyright>
 // <author>Gavin Kendall</author>
-// <summary>The parser responsible for parsing a T14 file.</summary>
+// <summary>A parser is responsible for parsing a T14 script.</summary>
 //-----------------------------------------------------------------------
 using System;
 using System.IO;
@@ -12,14 +12,16 @@ using System.Text.RegularExpressions;
 namespace t14
 {
     /// <summary>
-    /// 
+    /// A parser is responsible for parsing a T14 script.
     /// </summary>
     public class Parser
     {
         private readonly Regex rgxVariable = new Regex("^::set (?<VariableName>\\$[a-zA-Z_-]+) = (?<VariableValue>.+)$");
+        private readonly Regex rgxHex = new Regex("^::hex\\((?<ValueToConvert>.+)\\)$");
+        private readonly Regex rgxBin = new Regex("^::bin\\((?<ValueToConvert>.+)\\)$");
 
         /// <summary>
-        /// 
+        /// Parser constructor.
         /// </summary>
         public Parser()
         {
@@ -27,9 +29,9 @@ namespace t14
         }
 
         /// <summary>
-        /// 
+        /// Parser constructor accepting the filename of a T14 script.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">The filename of a T14 script.</param>
         public void Parse(string filename)
         {
             if (!File.Exists(filename))
@@ -68,9 +70,20 @@ namespace t14
                         variables.Add(variable);
                     }
 
+                    if (rgxHex.IsMatch(line))
+                    {
+                        Console.WriteLine(Convert.ToHexadecimal(rgxHex.Match(line).Groups["ValueToConvert"].Value));
+                    }
+
+                    if (rgxBin.IsMatch(line))
+                    {
+                        Console.WriteLine(Convert.ToBinary(rgxBin.Match(line).Groups["ValueToConvert"].Value));
+                    }
+
                     continue;
                 }
 
+                // Split each line by space into an array of words.
                 string[] words = line.Split(' ');
 
                 for (int i = 0; i < words.Length; i++)
@@ -97,9 +110,11 @@ namespace t14
                         Console.Write(word);
                     }
 
+                    // Assume there's a space between each word and output words until the end of the line without a trailing space.
                     if (i < (words.Length - 1))
                         Console.Write(" ");
 
+                    // Output with EOL if we've reached the end of the line.
                     if (i == (words.Length - 1))
                         Console.WriteLine();
                 }

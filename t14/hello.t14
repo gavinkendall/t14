@@ -19,3 +19,11 @@ Let's output the value of the foo-Bar variable as $foo-Bar
 
 # Output the other variable
 Let's see what happens with the My_number variable value of $My_number (does it show a number?)
+
+# Output 1234567 into its hexadecimal equivalent.
+This is 1234567 in hexadecimal ...
+::hex(1234567)
+
+# Output 1234567 into its binary equivalent.
+This is 1234567 in binary ...
+::bin(1234567)

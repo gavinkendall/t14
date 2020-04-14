@@ -10,14 +10,14 @@ using System;
 namespace t14
 {
     /// <summary>
-    /// 
+    /// The main class.
     /// </summary>
     public class Program
     {
         /// <summary>
-        /// 
+        /// The main method.
         /// </summary>
-        /// <param name="args">You need to specify the first argument as the filename of a T14 file.</param>
+        /// <param name="args">You need to specify the first argument as the filename of a T14 script.</param>
         public static void Main(string[] args)
         {
             if (args.Length == 0)
