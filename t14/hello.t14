@@ -1,0 +1,21 @@
+# T14 1.0 by Gavin Kendall
+
+# This is a simple text file used to test the functionality of the interpreted language.
+# This is a comment and should be ignored by the parser.
+
+# The next line is an example of setting a variable with a value. The type isn't specified. The parser should figure it out.
+::set $foo-Bar = hello
+
+# Here's a number.
+::set $My_number = 123
+
+# Tabs and new lines shouldn't appear
+		
+
+
+
+# The next line is standard output of a variable's value.
+Let's output the value of the foo-Bar variable as $foo-Bar
+
+# Output the other variable
+Let's see what happens with the My_number variable value of $My_number (does it show a number?)
