@@ -46,8 +46,7 @@ namespace t14
                 Console.WriteLine("The ASCII representation of this binary value is ...");
                 Console.WriteLine(FromBinaryToASCII(unknown));
             }
-
-            if (!string.IsNullOrEmpty(unknown) && rgxHex.IsMatch(unknown))
+            else if (!string.IsNullOrEmpty(unknown) && rgxHex.IsMatch(unknown))
             {
                 Console.WriteLine("I think it might be something in hexadecimal.");
 
