@@ -17,6 +17,7 @@ namespace t14
     public class Parser
     {
         private readonly Regex rgxVariable = new Regex("^::set (?<VariableName>\\$[a-zA-Z_-]+) = (?<VariableValue>.+)$");
+        private readonly Regex rgxWTF = new Regex("^::wtf\\((?<Value>.+)\\)$");
         private readonly Regex rgxHex = new Regex("^::hex\\((?<ValueToConvert>.+)\\)$");
         private readonly Regex rgxBin = new Regex("^::bin\\((?<ValueToConvert>.+)\\)$");
 
@@ -70,14 +71,19 @@ namespace t14
                         variables.Add(variable);
                     }
 
+                    if (rgxWTF.IsMatch(line))
+                    {
+                        Convert.WhatTheFuckIsThis(rgxWTF.Match(line).Groups["Value"].Value);
+                    }
+
                     if (rgxHex.IsMatch(line))
                     {
-                        Console.WriteLine(Convert.ToHexadecimal(rgxHex.Match(line).Groups["ValueToConvert"].Value));
+                        Console.WriteLine(Convert.FromDecimalToHex(rgxHex.Match(line).Groups["ValueToConvert"].Value));
                     }
 
                     if (rgxBin.IsMatch(line))
                     {
-                        Console.WriteLine(Convert.ToBinary(rgxBin.Match(line).Groups["ValueToConvert"].Value));
+                        Console.WriteLine(Convert.FromDecimalToBinary(rgxBin.Match(line).Groups["ValueToConvert"].Value));
                     }
 
                     continue;
