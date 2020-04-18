@@ -16,7 +16,14 @@ namespace t14
     /// </summary>
     public class Parser
     {
+        // Exit commands (including FTS = Fuck This Shit and FI = Fuck It).
+        private readonly Regex rgxExit = new Regex("^::exit$|^::quit$|^::fts$|^::fi$");
+
+        // Variables.
         private readonly Regex rgxVariable = new Regex("^::set (?<VariableName>\\$[a-zA-Z_-]+) = (?<VariableValue>.+)$");
+
+        // The moment where you're looking at something and just go, "What the fuck is this?!".
+        // So just pass in the unknown value and let the wtf command do the rest.
         private readonly Regex rgxWTF = new Regex("^::wtf\\((?<Value>.+)\\)$");
 
         // Conversion methods.
@@ -76,6 +83,11 @@ namespace t14
                 // Any line that starts with :: should be interpreted as a command.
                 if (line.StartsWith("::", StringComparison.CurrentCulture))
                 {
+                    if (rgxExit.IsMatch(line))
+                    {
+                        Environment.Exit(0);
+                    }
+
                     if (rgxVariable.IsMatch(line))
                     {
                         Variable variable = new Variable()
