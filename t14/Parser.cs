@@ -67,9 +67,11 @@ namespace t14
 
             foreach (string line in lines)
             {
-                // Ignore any line that starts with # because it should be interpreted as a comment.
-                if (line.StartsWith("#", StringComparison.CurrentCulture))
+                // Ignore any line that's just whitespace or starts with # because it should be interpreted as a comment.
+                if (string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line) || line.StartsWith("#", StringComparison.CurrentCulture))
+                {
                     continue;
+                }
 
                 // Any line that starts with :: should be interpreted as a command.
                 if (line.StartsWith("::", StringComparison.CurrentCulture))
@@ -79,7 +81,7 @@ namespace t14
                         Variable variable = new Variable()
                         {
                             Name = rgxVariable.Match(line).Groups["VariableName"].Value,
-                            Value = rgxVariable.Match(line).Groups["VariableValue"].Value
+                            Value = rgxVariable.Match(line).Groups["VariableValue"].Value.Trim()
                         };
 
                         variables.Add(variable);
@@ -103,7 +105,9 @@ namespace t14
                     string word = words[i];
 
                     if (string.IsNullOrEmpty(word) || string.IsNullOrWhiteSpace(word))
+                    {
                         continue;
+                    }
 
                     // This word is a variable.
                     if (word.StartsWith("$", StringComparison.CurrentCulture))
@@ -128,89 +132,111 @@ namespace t14
 
                     // Assume there's a space between each word and output words until the end of the line without a trailing space.
                     if (i < (words.Length - 1))
+                    {
                         Console.Write(" ");
+                    }
 
                     // Output with EOL if we've reached the end of the line.
                     if (i == (words.Length - 1))
+                    {
                         Console.WriteLine();
+                    }
                 }
             }
         }
 
         private void ParseConversionMethods(string value, bool newline)
         {
+            bool match = false;
+
             if (rgxHexToBin.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromHexToBinary(rgxHexToBin.Match(value).Groups["Value"].Value));
             }
 
             if (rgxHexToDec.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromHexToDecimal(rgxHexToDec.Match(value).Groups["Value"].Value));
             }
 
             if (rgxHexToASCII.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromHexToASCII(rgxHexToASCII.Match(value).Groups["Value"].Value));
             }
 
             if(rgxBinToDec.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromBinaryToDecimal(rgxBinToDec.Match(value).Groups["Value"].Value));
             }
 
             if (rgxBinToHex.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromBinaryToHex(rgxBinToHex.Match(value).Groups["Value"].Value));
             }
 
             if (rgxBinToASCII.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromBinaryToASCII(rgxBinToASCII.Match(value).Groups["Value"].Value));
             }
 
             if (rgxDecToHex.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromDecimalToHex(rgxDecToHex.Match(value).Groups["Value"].Value));
             }
 
             if (rgxDecToBin.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromDecimalToBinary(rgxDecToBin.Match(value).Groups["Value"].Value));
             }
 
             if(rgxDecToASCII.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromDecimalToASCII(rgxDecToASCII.Match(value).Groups["Value"].Value));
             }
 
             if(rgxASCIIToBin.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromASCIIToBinary(rgxASCIIToBin.Match(value).Groups["Value"].Value));
             }
 
             if (rgxASCIIToHex.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromASCIIToHex(rgxASCIIToHex.Match(value).Groups["Value"].Value));
             }
 
             if (rgxASCIIToDec.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromASCIIToDecimal(rgxASCIIToDec.Match(value).Groups["Value"].Value));
             }
 
             if (rgxTextToMorse.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromTextToMorse(rgxTextToMorse.Match(value).Groups["Value"].Value));
             }
 
             if (rgxMorseToText.IsMatch(value))
             {
+                match = true;
                 Console.Write(Convert.FromMorseToText(rgxMorseToText.Match(value).Groups["Value"].Value));
             }
 
-            if (newline)
+            if (match && newline)
+            {
                 Console.WriteLine();
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 # T14 1.0 by Gavin Kendall
 
-# This is a simple text file used to test the functionality of the interpreted language.
+# This is a simple text file used to test the functionality of the T14 interpreted language.
 # This is a comment and should be ignored by the parser.
 
 # The next line is an example of setting a variable with a value. The type isn't specified. The parser should figure it out.

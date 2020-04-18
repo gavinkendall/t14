@@ -26,7 +26,7 @@ namespace t14
                 Console.WriteLine("Copyright (C) 2020 Gavin Kendall");
                 Console.WriteLine("\nThis program is a language interpreter which parses a T14 script and performs various functions based on the T14 scripting language written in a T14 script. The source code is available at https://github.com/gavinkendall/t14 for your review.");
                 Console.WriteLine("\nThis program comes with ABSOLUTELY NO WARRANTY. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. THE PROGRAM IS PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.");
-                Console.WriteLine("\nRun \"t14.exe help\" (or \"dotnet t14.dll help\" if you're using a Mac or running on Linux with the Microsoft .NET Core framework) for additional help in using the T14 language interpreter.");
+                Console.WriteLine("\nRun \"t14.exe help\" (or \"dotnet t14.dll help\" if you're using a Mac or running on Linux with the Microsoft .NET Core framework) for help in using the T14 language interpreter.");
 
                 return;
             }
