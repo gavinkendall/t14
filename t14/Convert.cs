@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -18,6 +19,48 @@ namespace t14
     /// </summary>
     public static class Convert
     {
+        // International Morse Code
+        // https://en.wikipedia.org/wiki/Morse_code
+        private static Dictionary<char, string> morseCodes = new Dictionary<char, string>()
+        {
+            { 'A', ".-" },
+            { 'B', "-..." },
+            { 'C', "-.-." },
+            { 'D', "-.." },
+            { 'E', "." },
+            { 'F', "..-." },
+            { 'G', "--." },
+            { 'H', "...." },
+            { 'I', ".." },
+            { 'J', ".---" },
+            { 'K', "-.-" },
+            { 'L', ".-.." },
+            { 'M', "--" },
+            { 'N', "-." },
+            { 'O', "---" },
+            { 'P', ".--." },
+            { 'Q', "--.-" },
+            { 'R', ".-." },
+            { 'S', "..." },
+            { 'T', "-" },
+            { 'U', "..-" },
+            { 'V', "...-" },
+            { 'W', ".--" },
+            { 'X', "-..-" },
+            { 'Y', "-.--" },
+            { 'Z', "--.." },
+            { '1', ".----" },
+            { '2', "..---" },
+            { '3', "...--" },
+            { '4', "....-" },
+            { '5', "....." },
+            { '6', "-...." },
+            { '7', "--..." },
+            { '8', "---.." },
+            { '9', "----." },
+            { '0', "-----" }
+        };
+
         /// <summary>
         /// Attempts to figure out what a given unknown value actually is by trying out different conversion methods.
         /// </summary>
@@ -256,6 +299,98 @@ namespace t14
         public static string FromASCIIToDecimal(string value)
         {
             return System.Convert.ToInt64(System.Convert.ToChar(value)).ToString();
+        }
+
+        /// <summary>
+        /// ::morse(value)
+        /// ::text->morse(value)
+        /// Converts text into Morse code.
+        /// Based on code from http://www.blackwasp.co.uk/MorseCode.aspx
+        /// </summary>
+        /// <param name="value">The text to convert into Morse code.</param>
+        /// <returns>The Morse code representation of the given text.</returns>
+        public static string FromTextToMorse(string value)
+        {
+            string[] words = value.ToUpper().Split(' ');
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string word in words)
+            {
+                if (sb.Length != 0)
+                    sb.Append("/");
+
+                sb.Append(MorseWord(word));
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// ::morse->text(value)
+        /// Converts morse code into normal text.
+        /// </summary>
+        /// <param name="value">The morse code to convert back to normal text.</param>
+        /// <returns>The normal text of the given morse code.</returns>
+        public static string FromMorseToText(string value)
+        {
+            string[] words = value.Split('/');
+
+            //Console.WriteLine(words[0]);
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach(string word in words)
+            {
+                string[] codes = word.Split(' ');
+
+                foreach (string ch in codes)
+                {
+                    sb.Append(morseCodes.FirstOrDefault(x => x.Value == ch).Key);
+                }
+
+                sb.Append(" ");
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Based on code from http://www.blackwasp.co.uk/MorseCode.aspx
+        /// </summary>
+        /// <param name="word"></param>
+        /// <returns></returns>
+        private static string MorseWord(string word)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char ch in word)
+            {
+                if (sb.Length != 0 && sb[sb.Length - 1] != ' ')
+                    sb.Append(" ");
+
+                sb.Append(MorseCharacter(ch));
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Based on code from http://www.blackwasp.co.uk/MorseCode.aspx
+        /// </summary>
+        /// <param name="ch"></param>
+        /// <returns></returns>
+        private static string MorseCharacter(char ch)
+        {
+            foreach(char c in morseCodes.Keys)
+            {
+                if (c == ch)
+                {
+                    return morseCodes[c];
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

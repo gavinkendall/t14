@@ -37,6 +37,12 @@ namespace t14
                 Console.WriteLine("::hex->bin(41)");
                 Console.WriteLine("::hex->dec(41)");
                 Console.WriteLine("::hex->ascii(41)");
+                Console.WriteLine("::ascii->bin(A)");
+                Console.WriteLine("::ascii->hex(A)");
+                Console.WriteLine("::ascii->dec(A)");
+                Console.WriteLine("::text->morse(hello world) or ::morse(hello world)");
+                Console.WriteLine("::morse->text(.... . .-.. .-..---/.---- - .-. .- ..-..)");
+
                 return;
             }
 

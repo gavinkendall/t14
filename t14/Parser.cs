@@ -32,6 +32,8 @@ namespace t14
         private readonly Regex rgxASCIIToBin = new Regex("^::ascii->bin\\((?<Value>.+)\\)$");
         private readonly Regex rgxASCIIToHex = new Regex("^::ascii->hex\\((?<Value>.+)\\)$");
         private readonly Regex rgxASCIIToDec = new Regex("^::ascii->dec\\((?<Value>.+)\\)$");
+        private readonly Regex rgxTextToMorse = new Regex("^::morse\\((?<Value>.+)\\)$|^::text->morse\\((?<Value>.+)\\)$");
+        private readonly Regex rgxMorseToText = new Regex("^::morse->text\\((?<Value>.+)\\)$");
 
         /// <summary>
         /// Parser constructor.
@@ -195,6 +197,16 @@ namespace t14
             if (rgxASCIIToDec.IsMatch(value))
             {
                 Console.Write(Convert.FromASCIIToDecimal(rgxASCIIToDec.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxTextToMorse.IsMatch(value))
+            {
+                Console.Write(Convert.FromTextToMorse(rgxTextToMorse.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxMorseToText.IsMatch(value))
+            {
+                Console.Write(Convert.FromMorseToText(rgxMorseToText.Match(value).Groups["Value"].Value));
             }
 
             if (newline)
