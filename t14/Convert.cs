@@ -208,5 +208,54 @@ namespace t14
         {
             return System.Convert.ToChar(System.Convert.ToInt64(value)).ToString();
         }
+
+        /// <summary>
+        /// ::ascii->bin(value)
+        /// Converts ASCII to binary.
+        /// </summary>
+        /// <param name="value">The ASCII value to convert to binary.</param>
+        /// <returns>The converted value as binary.</returns>
+        public static string FromASCIIToBinary(string value)
+        {
+            StringBuilder sb = new StringBuilder();
+            byte[] bytes = Encoding.ASCII.GetBytes(value);
+
+            foreach (byte b in bytes)
+            {
+                sb.Append(System.Convert.ToString(b, 2));
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// ::ascii->hex(value)
+        /// Converts ASCII to hexadecimal.
+        /// </summary>
+        /// <param name="value">The ASCII value to convert to hex.</param>
+        /// <returns>The converted value as hex.</returns>
+        public static string FromASCIIToHex(string value)
+        {
+            StringBuilder sb = new StringBuilder();
+            byte[] bytes = Encoding.ASCII.GetBytes(value);
+
+            foreach (byte b in bytes)
+            {
+                sb.Append(System.Convert.ToString(b, 16));
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// ::ascii->dec(value)
+        /// Converts ASCII to decimal.
+        /// </summary>
+        /// <param name="value">The ASCII value to convert to decimal.</param>
+        /// <returns>The converted value as ASCII.</returns>
+        public static string FromASCIIToDecimal(string value)
+        {
+            return System.Convert.ToInt64(System.Convert.ToChar(value)).ToString();
+        }
     }
 }

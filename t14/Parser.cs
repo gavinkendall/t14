@@ -29,6 +29,9 @@ namespace t14
         private readonly Regex rgxDecToHex = new Regex("^::dec->hex\\((?<Value>.+)\\)$");
         private readonly Regex rgxDecToBin = new Regex("^::dec->bin\\((?<Value>.+)\\)$");
         private readonly Regex rgxDecToASCII = new Regex("^::dec->ascii\\((?<Value>.+)\\)$");
+        private readonly Regex rgxASCIIToBin = new Regex("^::ascii->bin\\((?<Value>.+)\\)$");
+        private readonly Regex rgxASCIIToHex = new Regex("^::ascii->hex\\((?<Value>.+)\\)$");
+        private readonly Regex rgxASCIIToDec = new Regex("^::ascii->dec\\((?<Value>.+)\\)$");
 
         /// <summary>
         /// Parser constructor.
@@ -177,6 +180,21 @@ namespace t14
             if(rgxDecToASCII.IsMatch(value))
             {
                 Console.Write(Convert.FromDecimalToASCII(rgxDecToASCII.Match(value).Groups["Value"].Value));
+            }
+
+            if(rgxASCIIToBin.IsMatch(value))
+            {
+                Console.Write(Convert.FromASCIIToBinary(rgxASCIIToBin.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxASCIIToHex.IsMatch(value))
+            {
+                Console.Write(Convert.FromASCIIToHex(rgxASCIIToHex.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxASCIIToDec.IsMatch(value))
+            {
+                Console.Write(Convert.FromASCIIToDecimal(rgxASCIIToDec.Match(value).Groups["Value"].Value));
             }
 
             if (newline)
