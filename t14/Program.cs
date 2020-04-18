@@ -22,7 +22,21 @@ namespace t14
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Error: No filename specified. You should be running t14.exe with a filename as the first argument. Try again.");
+                Console.WriteLine(":: Help ::");
+                Console.WriteLine("You would normally run t14.exe (or dotnet t14.dll) with a filename that ends with a \".t14\" file extension. For example, on Windows, you would run ...");
+                Console.WriteLine("t14.exe hello.t14");
+                Console.WriteLine();
+                Console.WriteLine(":: Conversion Methods ::");
+                Console.WriteLine("Here is a list of methods you can use in your T14 script to convert stuff.");
+                Console.WriteLine("::dec->bin(65)");
+                Console.WriteLine("::dec->hex(65)");
+                Console.WriteLine("::dec->ascii(65)");
+                Console.WriteLine("::bin->dec(01000001)");
+                Console.WriteLine("::bin->hex(01000001)");
+                Console.WriteLine("::bin->ascii(01000001)");
+                Console.WriteLine("::hex->bin(41)");
+                Console.WriteLine("::hex->dec(41)");
+                Console.WriteLine("::hex->ascii(41)");
                 return;
             }
 

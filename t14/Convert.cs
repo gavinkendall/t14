@@ -3,7 +3,7 @@
 //     Copyright (c) Gavin Kendall. All rights reserved.
 // </copyright>
 // <author>Gavin Kendall</author>
-// <summary>A class to convert stuff.</summary>
+// <summary>A class for converting stuff.</summary>
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 namespace t14
 {
     /// <summary>
-    /// A class to convert stuff.
+    /// A class for converting stuff.
     /// </summary>
     public static class Convert
     {
@@ -27,6 +27,7 @@ namespace t14
             if (string.IsNullOrEmpty(unknown) || string.IsNullOrWhiteSpace(unknown))
                 return;
 
+            Console.WriteLine("::wtf(" + unknown + ")");
             Console.WriteLine("I'm trying to figure out what this is ...");
             Console.WriteLine(unknown);
 
@@ -35,26 +36,29 @@ namespace t14
 
             if (!string.IsNullOrEmpty(unknown) && rgxBin.IsMatch(unknown))
             {
-                Console.WriteLine("I think it might be something in binary.");
+                Console.WriteLine("\nI think it might be something in binary.");
 
+                Console.WriteLine("\n::bin->dec(" + unknown + ")");
                 Console.WriteLine("The decimal representation of this binary value is ...");
                 Console.WriteLine(FromBinaryToDecimal(unknown));
 
+                Console.WriteLine("\n::bin->hex(" + unknown + ")");
                 Console.WriteLine("The hex representation of this binary value is ...");
                 Console.WriteLine(FromBinaryToHex(unknown));
 
+                Console.WriteLine("\n::bin->ascii(" + unknown + ")");
                 Console.WriteLine("The ASCII representation of this binary value is ...");
                 Console.WriteLine(FromBinaryToASCII(unknown));
             }
             else if (!string.IsNullOrEmpty(unknown) && rgxHex.IsMatch(unknown))
             {
-                Console.WriteLine("I think it might be something in hexadecimal.");
+                Console.WriteLine("\nI think it might be something in hexadecimal.");
 
-                int integer = FromHexToInteger(unknown);
-                string strInteger = integer == 0 ? "0 (but this might not actually be 0)" : integer.ToString();
+                Console.WriteLine("\n::hex->dec(" + unknown + ")");
                 Console.WriteLine("The decimal representation of this hex value is ...");
-                Console.WriteLine(strInteger);
+                Console.WriteLine(FromHexToDecimal(unknown));
 
+                Console.WriteLine("\n::hex->ascii(" + unknown + ")");
                 string ascii = FromHexToASCII(unknown);
                 if (!string.IsNullOrEmpty(ascii) && ascii.Length > 0)
                 {
@@ -63,41 +67,54 @@ namespace t14
                 }
             }
 
-            Console.WriteLine("That's as much as I could figure out.");
+            Console.WriteLine("\nThat's as much as I could figure out.");
             Console.WriteLine("I'm sorry if it wasn't helpful or sufficient.");
         }
 
         /// <summary>
-        /// Converts a hexadecimal value into an integer.
+        /// ::hex->bin(value)
+        /// Converts a hexadecimal value into a binary value.
         /// </summary>
-        /// <param name="hex">The hexadecimal value to convert as an integer.</param>
-        /// <returns>An integer from the given hexadecimal value.</returns>
-        public static int FromHexToInteger(string hex)
+        /// <param name="value">The hexadecimal value to convert into a binary value.</param>
+        /// <returns>The converted value in binary.</returns>
+        public static string FromHexToBinary(string value)
         {
-            if (int.TryParse(hex, NumberStyles.HexNumber,
-                CultureInfo.CurrentCulture, out int integer))
-            {
-                return integer;
-            }
-
-            return integer;
+            return System.Convert.ToString(System.Convert.ToInt64(value, 16), 2);
         }
 
         /// <summary>
+        /// ::hex->dec(value)
+        /// Converts a hexadecimal value into a decimal value.
+        /// </summary>
+        /// <param name="value">The hexadecimal value to convert as a decimal value.</param>
+        /// <returns>The converted value in decimal.</returns>
+        public static string FromHexToDecimal(string value)
+        {
+            if (int.TryParse(value, NumberStyles.HexNumber,
+                CultureInfo.CurrentCulture, out int integer))
+            {
+                return integer.ToString();
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// ::hex->ascii(value)
         /// Converts a hexadecimal value into ASCII.
         /// </summary>
-        /// <param name="hex">The hexadecimal value to convert into ASCII.</param>
+        /// <param name="value">The hexadecimal value to convert into ASCII.</param>
         /// <returns>The converted value in ASCII.</returns>
-        public static string FromHexToASCII(string hex)
+        public static string FromHexToASCII(string value)
         {
             StringBuilder sb = new StringBuilder();
 
-            for (int i = 0; i < hex.Length; i += 2)
+            for (int i = 0; i < value.Length; i += 2)
             {
-                if ((i + 2) <= hex.Length)
+                if ((i + 2) <= value.Length)
                 {
-                    string hs = hex.Substring(i, 2);
-                    sb.Append(System.Convert.ToChar(System.Convert.ToUInt32(hs, 16)));
+                    string hs = value.Substring(i, 2);
+                    sb.Append(System.Convert.ToChar(System.Convert.ToUInt64(hs, 16)));
                 }
             }
 
@@ -105,39 +122,42 @@ namespace t14
         }
 
         /// <summary>
+        /// ::bin->dec(value)
         /// Converts a binary value into its decimal representation.
         /// </summary>
-        /// <param name="bin">The binary value to convert to decimal.</param>
+        /// <param name="value">The binary value to convert to decimal.</param>
         /// <returns>The converted value in decimal.</returns>
-        public static string FromBinaryToDecimal(string bin)
+        public static string FromBinaryToDecimal(string value)
         {
-            return System.Convert.ToInt32(bin, 2).ToString();
+            return System.Convert.ToInt64(value, 2).ToString();
         }
 
         /// <summary>
+        /// ::bin->hex(value)
         /// Converts a binary value into its hexadecimal representation.
         /// </summary>
-        /// <param name="bin">The binary value to convert to hexadecimal.</param>
+        /// <param name="value">The binary value to convert to hexadecimal.</param>
         /// <returns>The converted value in hexadecimal.</returns>
-        public static string FromBinaryToHex(string bin)
+        public static string FromBinaryToHex(string value)
         {
-            return System.Convert.ToInt32(bin, 2).ToString("X");
+            return System.Convert.ToInt64(value, 2).ToString("X");
         }
 
         /// <summary>
+        /// ::hex->ascii(value)
         /// Converts a binary value into ASCII.
         /// </summary>
-        /// <param name="bin">The binary value to convert into ASCII.</param>
+        /// <param name="value">The binary value to convert into ASCII.</param>
         /// <returns>The converted value in ASCII.</returns>
-        public static string FromBinaryToASCII(string bin)
+        public static string FromBinaryToASCII(string value)
         {
             var list = new List<Byte>();
 
-            for (int i = 0; i < bin.Length; i += 8)
+            for (int i = 0; i < value.Length; i += 8)
             {
-                if ((i + 8) <= bin.Length)
+                if ((i + 8) <= value.Length)
                 {
-                    string t = bin.Substring(i, 8);
+                    string t = value.Substring(i, 8);
                     list.Add(System.Convert.ToByte(t, 2));
                 }
             }
@@ -147,37 +167,46 @@ namespace t14
         }
 
         /// <summary>
+        /// ::dec->hex(value)
         /// Converts a decimal value into its hexadecimal representation.
         /// </summary>
-        /// <param name="decimal">The decimal value to convert to hexadecimal.</param>
+        /// <param name="value">The decimal value to convert to hexadecimal.</param>
         /// <returns>The converted value in hexadecimal.</returns>
-        public static string FromDecimalToHex(string @decimal)
+        public static string FromDecimalToHex(string value)
         {
-            string hex = string.Empty;
-
-            if (int.TryParse(@decimal, out int number))
+            if (int.TryParse(value, out int number))
             {
-                hex = number.ToString("X");
+                return number.ToString("X");
             }
 
-            return hex;
+            return string.Empty;
         }
 
         /// <summary>
+        /// ::dec->bin(value)
         /// Converts a decimal value into its binary representation.
         /// </summary>
-        /// <param name="decimal">The decimal value to convert to binary.</param>
+        /// <param name="value">The decimal value to convert to binary.</param>
         /// <returns>The converted value in binary.</returns>
-        public static string FromDecimalToBinary(string @decimal)
+        public static string FromDecimalToBinary(string value)
         {
-            string bin = string.Empty;
-
-            if (int.TryParse(@decimal, out int number))
+            if (int.TryParse(value, out int number))
             {
-                bin = System.Convert.ToString(number, 2);
+                return System.Convert.ToString(number, 2);
             }
 
-            return bin;
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// ::dec->ascii(value)
+        /// Converts a decimal value into its ASCII representation.
+        /// </summary>
+        /// <param name="value">The decimal value to convert to ASCII.</param>
+        /// <returns>The converted value in ASCII.</returns>
+        public static string FromDecimalToASCII(string value)
+        {
+            return System.Convert.ToChar(System.Convert.ToInt64(value)).ToString();
         }
     }
 }

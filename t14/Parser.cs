@@ -18,8 +18,17 @@ namespace t14
     {
         private readonly Regex rgxVariable = new Regex("^::set (?<VariableName>\\$[a-zA-Z_-]+) = (?<VariableValue>.+)$");
         private readonly Regex rgxWTF = new Regex("^::wtf\\((?<Value>.+)\\)$");
-        private readonly Regex rgxHex = new Regex("^::hex\\((?<ValueToConvert>.+)\\)$");
-        private readonly Regex rgxBin = new Regex("^::bin\\((?<ValueToConvert>.+)\\)$");
+
+        // Conversion methods.
+        private readonly Regex rgxHexToBin = new Regex("^::hex->bin\\((?<Value>.+)\\)$");
+        private readonly Regex rgxHexToDec = new Regex("^::hex->dec\\((?<Value>.+)\\)$");
+        private readonly Regex rgxHexToASCII = new Regex("^::hex->ascii\\((?<Value>.+)\\)$");
+        private readonly Regex rgxBinToDec = new Regex("^::bin->dec\\((?<Value>.+)\\)$");
+        private readonly Regex rgxBinToHex = new Regex("^::bin->hex\\((?<Value>.+)\\)$");
+        private readonly Regex rgxBinToASCII = new Regex("^::bin->ascii\\((?<Value>.+)\\)$");
+        private readonly Regex rgxDecToHex = new Regex("^::dec->hex\\((?<Value>.+)\\)$");
+        private readonly Regex rgxDecToBin = new Regex("^::dec->bin\\((?<Value>.+)\\)$");
+        private readonly Regex rgxDecToASCII = new Regex("^::dec->ascii\\((?<Value>.+)\\)$");
 
         /// <summary>
         /// Parser constructor.
@@ -41,7 +50,7 @@ namespace t14
                 return;
             }
 
-            if (!filename.EndsWith(".t14"))
+            if (!filename.EndsWith(".t14", StringComparison.CurrentCulture))
             {
                 Console.WriteLine($"Error: File named {filename} does not end with extension \".t14\".");
                 return;
@@ -54,11 +63,11 @@ namespace t14
             foreach (string line in lines)
             {
                 // Ignore any line that starts with # because it should be interpreted as a comment.
-                if (line.StartsWith("#"))
+                if (line.StartsWith("#", StringComparison.CurrentCulture))
                     continue;
 
                 // Any line that starts with :: should be interpreted as a command.
-                if (line.StartsWith("::"))
+                if (line.StartsWith("::", StringComparison.CurrentCulture))
                 {
                     if (rgxVariable.IsMatch(line))
                     {
@@ -76,15 +85,7 @@ namespace t14
                         Convert.WhatTheFuckIsThis(rgxWTF.Match(line).Groups["Value"].Value);
                     }
 
-                    if (rgxHex.IsMatch(line))
-                    {
-                        Console.WriteLine(Convert.FromDecimalToHex(rgxHex.Match(line).Groups["ValueToConvert"].Value));
-                    }
-
-                    if (rgxBin.IsMatch(line))
-                    {
-                        Console.WriteLine(Convert.FromDecimalToBinary(rgxBin.Match(line).Groups["ValueToConvert"].Value));
-                    }
+                    ParseConversionMethods(line, true);
 
                     continue;
                 }
@@ -100,7 +101,7 @@ namespace t14
                         continue;
 
                     // This word is a variable.
-                    if (word.StartsWith("$"))
+                    if (word.StartsWith("$", StringComparison.CurrentCulture))
                     {
                         // Output the value of the variable if we find it in the variale collection using the variable name.
                         Variable variable = variables.GetByName(word);
@@ -109,6 +110,10 @@ namespace t14
                         {
                             Console.Write(variable.Value);
                         }
+                    }
+                    else if (word.StartsWith("::", StringComparison.CurrentCulture))
+                    {
+                        ParseConversionMethods(word, false);
                     }
                     else
                     {
@@ -125,6 +130,57 @@ namespace t14
                         Console.WriteLine();
                 }
             }
+        }
+
+        private void ParseConversionMethods(string value, bool newline)
+        {
+            if (rgxHexToBin.IsMatch(value))
+            {
+                Console.Write(Convert.FromHexToBinary(rgxHexToBin.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxHexToDec.IsMatch(value))
+            {
+                Console.Write(Convert.FromHexToDecimal(rgxHexToDec.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxHexToASCII.IsMatch(value))
+            {
+                Console.Write(Convert.FromHexToASCII(rgxHexToASCII.Match(value).Groups["Value"].Value));
+            }
+
+            if(rgxBinToDec.IsMatch(value))
+            {
+                Console.Write(Convert.FromBinaryToDecimal(rgxBinToDec.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxBinToHex.IsMatch(value))
+            {
+                Console.Write(Convert.FromBinaryToHex(rgxBinToHex.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxBinToASCII.IsMatch(value))
+            {
+                Console.Write(Convert.FromBinaryToASCII(rgxBinToASCII.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxDecToHex.IsMatch(value))
+            {
+                Console.Write(Convert.FromDecimalToHex(rgxDecToHex.Match(value).Groups["Value"].Value));
+            }
+
+            if (rgxDecToBin.IsMatch(value))
+            {
+                Console.Write(Convert.FromDecimalToBinary(rgxDecToBin.Match(value).Groups["Value"].Value));
+            }
+
+            if(rgxDecToASCII.IsMatch(value))
+            {
+                Console.Write(Convert.FromDecimalToASCII(rgxDecToASCII.Match(value).Groups["Value"].Value));
+            }
+
+            if (newline)
+                Console.WriteLine();
         }
     }
 }

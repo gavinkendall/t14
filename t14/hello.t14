@@ -22,8 +22,8 @@ Let's see what happens with the My_number variable value of $My_number (does it 
 
 # Output 1234567 into its hexadecimal equivalent.
 This is 1234567 in hexadecimal ...
-::hex(1234567)
+::dec->hex(1234567)
 
 # Output 1234567 into its binary equivalent.
 This is 1234567 in binary ...
-::bin(1234567)
+::dec->bin(1234567)
