@@ -20,6 +20,7 @@ namespace t14
         private readonly Regex rgxExit = new Regex("^::exit$|^::quit$|^::fts$|^::fi$");
 
         // Variables.
+        private readonly VariableCollection variables;
         private readonly Regex rgxVariable = new Regex("^::set (?<VariableName>\\$[a-zA-Z_-]+) = (?<VariableValue>.+)$");
 
         // The moment where you're looking at something and just go, "What the fuck is this?!".
@@ -47,14 +48,14 @@ namespace t14
         /// </summary>
         public Parser()
         {
-            
+            variables = new VariableCollection();
         }
 
         /// <summary>
         /// Parser constructor accepting the filename of a T14 script.
         /// </summary>
         /// <param name="filename">The filename of a T14 script.</param>
-        public void Parse(string filename)
+        public void ParseScript(string filename)
         {
             if (!File.Exists(filename))
             {
@@ -67,8 +68,6 @@ namespace t14
                 Console.WriteLine($"Error: File named {filename} does not end with extension \".t14\".");
                 return;
             }
-
-            VariableCollection variables = new VariableCollection();
 
             string[] lines = File.ReadAllLines(filename);
 
@@ -83,28 +82,7 @@ namespace t14
                 // Any line that starts with :: should be interpreted as a command.
                 if (line.StartsWith("::", StringComparison.CurrentCulture))
                 {
-                    if (rgxExit.IsMatch(line))
-                    {
-                        Environment.Exit(0);
-                    }
-
-                    if (rgxVariable.IsMatch(line))
-                    {
-                        Variable variable = new Variable()
-                        {
-                            Name = rgxVariable.Match(line).Groups["VariableName"].Value,
-                            Value = rgxVariable.Match(line).Groups["VariableValue"].Value.Trim()
-                        };
-
-                        variables.Add(variable);
-                    }
-
-                    if (rgxWTF.IsMatch(line))
-                    {
-                        Convert.WhatTheFuckIsThis(rgxWTF.Match(line).Groups["Value"].Value);
-                    }
-
-                    ParseConversionMethods(line, true);
+                    ParseCommand(line);
 
                     continue;
                 }
@@ -155,6 +133,36 @@ namespace t14
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Parses a T14 command.
+        /// </summary>
+        /// <param name="command">The command to parse.</param>
+        public void ParseCommand(string command)
+        {
+            if (rgxExit.IsMatch(command))
+            {
+                Environment.Exit(0);
+            }
+
+            if (rgxVariable.IsMatch(command))
+            {
+                Variable variable = new Variable()
+                {
+                    Name = rgxVariable.Match(command).Groups["VariableName"].Value,
+                    Value = rgxVariable.Match(command).Groups["VariableValue"].Value.Trim()
+                };
+
+                variables.Add(variable);
+            }
+
+            if (rgxWTF.IsMatch(command))
+            {
+                Convert.WhatTheFuckIsThis(rgxWTF.Match(command).Groups["Value"].Value);
+            }
+
+            ParseConversionMethods(command, true);
         }
 
         private void ParseConversionMethods(string value, bool newline)

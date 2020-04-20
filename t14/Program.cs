@@ -56,7 +56,15 @@ namespace t14
             else if (args.Length == 1 && !string.IsNullOrEmpty(args[0]))
             {
                 Parser parser = new Parser();
-                parser.Parse(args[0]);
+
+                if (args[0].EndsWith(".t14", StringComparison.CurrentCulture))
+                {
+                    parser.ParseScript(args[0]);
+                }
+                else if (args[0].StartsWith("::", StringComparison.CurrentCulture))
+                {
+                    parser.ParseCommand(args[0]);
+                }
             }
         }
     }
