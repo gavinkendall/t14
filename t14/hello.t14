@@ -1,7 +1,12 @@
 # T14 1.0 by Gavin Kendall
 
 # This is a simple text file used to test the functionality of the T14 interpreted language.
+# We always begin with a ::start command.
+::start
+
 # This is a comment and should be ignored by the parser.
+
+Starting an example T14 script!
 
 # The next line is an example of setting a variable with a value. The type isn't specified. The parser should figure it out.
 ::set $foo-Bar = hello
@@ -27,3 +32,12 @@ This is 1234567 in hexadecimal ...
 # Output 1234567 into its binary equivalent.
 This is 1234567 in binary ...
 ::dec->bin(1234567)
+
+::end
+
+This line shouldn't be displayed and shouldn't be considered as part of the script
+because it's outside the scope of a ::start and ::end block.
+
+::start
+This line should be displayed. We're ending the script here.
+::end

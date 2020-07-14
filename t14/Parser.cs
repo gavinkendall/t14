@@ -3,7 +3,7 @@
 //     Copyright (c) Gavin Kendall. All rights reserved.
 // </copyright>
 // <author>Gavin Kendall</author>
-// <summary>A parser is responsible for parsing a T14 script.</summary>
+// <summary>A parser responsible for parsing a T14 script.</summary>
 //-----------------------------------------------------------------------
 using System;
 using System.IO;
@@ -12,12 +12,21 @@ using System.Text.RegularExpressions;
 namespace t14
 {
     /// <summary>
-    /// A parser is responsible for parsing a T14 script.
+    /// A parser responsible for parsing a T14 script.
     /// </summary>
     public class Parser
     {
+        private bool _scriptInitialized;
+
         // Exit commands (including FTS = Fuck This Shit and FI = Fuck It).
         private readonly Regex rgxExit = new Regex("^::exit$|^::quit$|^::fts$|^::fi$");
+
+        // Start and End commands.
+        private readonly Regex rgxStart = new Regex("^::start$");
+        private readonly Regex rgxEnd = new Regex("^::end$");
+
+        // If command.
+        private readonly Regex rgxIf = new Regex("^::if \\((?<LeftValue>) (?<Operator>) (?<RightValue>)\\)$");
 
         // Variables.
         private readonly VariableCollection variables;
@@ -48,11 +57,12 @@ namespace t14
         /// </summary>
         public Parser()
         {
+            _scriptInitialized = false;
             variables = new VariableCollection();
         }
 
         /// <summary>
-        /// Parser constructor accepting the filename of a T14 script.
+        /// Parses a T14 script given its filename.
         /// </summary>
         /// <param name="filename">The filename of a T14 script.</param>
         public void ParseScript(string filename)
@@ -71,8 +81,21 @@ namespace t14
 
             string[] lines = File.ReadAllLines(filename);
 
-            foreach (string line in lines)
+            ParseScriptLines(lines, 0, lines.Length);
+        }
+
+        /// <summary>
+        /// Parses the given lines looking for T14 variables and commands.
+        /// </summary>
+        /// <param name="lines">The lines to parse.</param>
+        /// <param name="start">The starting index.</param>
+        /// <param name="end">The ending index.</param>
+        public void ParseScriptLines(string[] lines, int start, int end)
+        {
+            for (int lineIndex = start; lineIndex < end; lineIndex++)
             {
+                string line = lines[lineIndex];
+
                 // Ignore any line that's just whitespace or starts with # because it should be interpreted as a comment.
                 if (string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line) || line.StartsWith("#", StringComparison.CurrentCulture))
                 {
@@ -82,54 +105,78 @@ namespace t14
                 // Any line that starts with :: should be interpreted as a command.
                 if (line.StartsWith("::", StringComparison.CurrentCulture))
                 {
-                    ParseCommand(line);
-
-                    continue;
-                }
-
-                // Split each line by space into an array of words.
-                string[] words = line.Split(' ');
-
-                for (int i = 0; i < words.Length; i++)
-                {
-                    string word = words[i];
-
-                    if (string.IsNullOrEmpty(word) || string.IsNullOrWhiteSpace(word))
+                    if (rgxStart.IsMatch(line))
                     {
+                        _scriptInitialized = true;
+                        ParseScriptLines(lines, (lineIndex + 1), end);
                         continue;
                     }
 
-                    // This word is a variable.
-                    if (word.StartsWith("$", StringComparison.CurrentCulture))
+                    if (_scriptInitialized)
                     {
-                        // Output the value of the variable if we find it in the variale collection using the variable name.
-                        Variable variable = variables.GetByName(word);
-
-                        if (variable != null)
+                        if (rgxExit.IsMatch(line))
                         {
-                            Console.Write(variable.Value);
+                            Environment.Exit(0);
                         }
-                    }
-                    else if (word.StartsWith("::", StringComparison.CurrentCulture))
-                    {
-                        ParseConversionMethods(word, false);
-                    }
-                    else
-                    {
-                        // Output any word in a line that appears in the file as standard output if it's not a comment, command, or variable.
-                        Console.Write(word);
-                    }
 
-                    // Assume there's a space between each word and output words until the end of the line without a trailing space.
-                    if (i < (words.Length - 1))
-                    {
-                        Console.Write(" ");
-                    }
+                        if (rgxEnd.IsMatch(line))
+                        {
+                            _scriptInitialized = false;
+                            break;
+                        }
 
-                    // Output with EOL if we've reached the end of the line.
-                    if (i == (words.Length - 1))
+                        ParseCommand(line);
+                    }
+                }
+                else
+                {
+                    if (_scriptInitialized)
                     {
-                        Console.WriteLine();
+                        // Split each line by space into an array of words.
+                        string[] words = line.Split(' ');
+
+                        for (int i = 0; i < words.Length; i++)
+                        {
+                            string word = words[i];
+
+                            if (string.IsNullOrEmpty(word) || string.IsNullOrWhiteSpace(word))
+                            {
+                                continue;
+                            }
+
+                            // This word is a variable.
+                            if (word.StartsWith("$", StringComparison.CurrentCulture))
+                            {
+                                // Output the value of the variable if we find it in the variale collection using the variable name.
+                                Variable variable = variables.GetByName(word);
+
+                                if (variable != null)
+                                {
+                                    Console.Write(variable.Value);
+                                }
+                            }
+                            else if (word.StartsWith("::", StringComparison.CurrentCulture))
+                            {
+                                ParseConversionMethods(word, false);
+                            }
+                            else
+                            {
+                                // Output any word in a line that appears in the file as standard output if it's not a comment, command, or variable.
+                                Console.Write(word);
+                            }
+
+                            // Assume there's a space between each word and output words until the end of the line without a trailing space.
+                            if (i < (words.Length - 1))
+                            {
+                                Console.Write(" ");
+                            }
+
+                            // Output with EOL if we've reached the end of the line.
+                            if (i == (words.Length - 1))
+                            {
+                                Console.WriteLine();
+                            }
+                        }
                     }
                 }
             }
@@ -141,11 +188,6 @@ namespace t14
         /// <param name="command">The command to parse.</param>
         public void ParseCommand(string command)
         {
-            if (rgxExit.IsMatch(command))
-            {
-                Environment.Exit(0);
-            }
-
             if (rgxVariable.IsMatch(command))
             {
                 Variable variable = new Variable()
