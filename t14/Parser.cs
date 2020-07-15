@@ -130,7 +130,6 @@ namespace t14
 
                         if (rgxEnd.IsMatch(line))
                         {
-                            //_scriptInitialized = false;
                             break;
                         }
 
