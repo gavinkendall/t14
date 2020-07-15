@@ -2,7 +2,7 @@
 
 # This is a simple text file used to test the functionality of the T14 interpreted language.
 # We always begin with a ::start command.
-::start
+::start(main)
 
 # This is a comment and should be ignored by the parser.
 
@@ -38,6 +38,6 @@ This is 1234567 in binary ...
 This line shouldn't be displayed and shouldn't be considered as part of the script
 because it's outside the scope of a ::start and ::end block.
 
-::start
+::start(finish)
 This line should be displayed. We're ending the script here.
 ::end

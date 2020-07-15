@@ -21,16 +21,17 @@ namespace t14
         // Exit commands (including FTS = Fuck This Shit and FI = Fuck It).
         private readonly Regex rgxExit = new Regex("^::exit$|^::quit$|^::fts$|^::fi$");
 
-        // Start and End commands.
-        private readonly Regex rgxStart = new Regex("^::start$");
+        // Start and End commands for blocks of code.
+        private readonly BlockCollection blocks;
+        private readonly Regex rgxStart = new Regex("^::start\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
         private readonly Regex rgxEnd = new Regex("^::end$");
 
         // If command.
-        private readonly Regex rgxIf = new Regex("^::if \\((?<LeftValue>) (?<Operator>) (?<RightValue>)\\)$");
+        private readonly Regex rgxIf = new Regex("^::if \\((?<LeftValue>) (?<Operator>) (?<RightValue>)\\)->\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
 
         // Variables.
         private readonly VariableCollection variables;
-        private readonly Regex rgxVariable = new Regex("^::set (?<VariableName>\\$[a-zA-Z_-]+) = (?<VariableValue>.+)$");
+        private readonly Regex rgxVariable = new Regex("^::set (?<VariableName>\\$[0-9a-zA-Z_-]+) = (?<VariableValue>.+)$");
 
         // The moment where you're looking at something and just go, "What the fuck is this?!".
         // So just pass in the unknown value and let the wtf command do the rest.
@@ -58,6 +59,8 @@ namespace t14
         public Parser()
         {
             _scriptInitialized = false;
+
+            blocks = new BlockCollection();
             variables = new VariableCollection();
         }
 
@@ -105,10 +108,16 @@ namespace t14
                 // Any line that starts with :: should be interpreted as a command.
                 if (line.StartsWith("::", StringComparison.CurrentCulture))
                 {
-                    if (rgxStart.IsMatch(line))
+                    if (!_scriptInitialized && rgxStart.IsMatch(line))
                     {
-                        _scriptInitialized = true;
-                        ParseScriptLines(lines, (lineIndex + 1), end);
+                        Block block = new Block()
+                        {
+                            Name = rgxStart.Match(line).Groups["BlockName"].Value.Trim(),
+                            LineIndex = lineIndex
+                        };
+
+                        blocks.Add(block);
+
                         continue;
                     }
 
@@ -121,7 +130,7 @@ namespace t14
 
                         if (rgxEnd.IsMatch(line))
                         {
-                            _scriptInitialized = false;
+                            //_scriptInitialized = false;
                             break;
                         }
 
@@ -178,6 +187,16 @@ namespace t14
                             }
                         }
                     }
+                }
+            }
+
+            if (!_scriptInitialized)
+            {
+                foreach (Block block in blocks)
+                {
+                    _scriptInitialized = true;
+
+                    ParseScriptLines(lines, (block.LineIndex + 1), end);
                 }
             }
         }
