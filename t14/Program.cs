@@ -57,6 +57,12 @@ namespace t14
             {
                 Parser parser = new Parser();
 
+                if (args[0].StartsWith("\"", StringComparison.CurrentCulture) && args[0].EndsWith("\"", StringComparison.CurrentCulture))
+                {
+                    args[0] = args[0].TrimStart('"');
+                    args[0] = args[0].TrimEnd('"');
+                }
+
                 if (args[0].EndsWith(".t14", StringComparison.CurrentCulture))
                 {
                     parser.ParseScript(args[0]);
