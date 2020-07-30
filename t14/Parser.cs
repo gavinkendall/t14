@@ -26,6 +26,9 @@ namespace t14
         private readonly Regex rgxStart = new Regex("^::start\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
         private readonly Regex rgxEnd = new Regex("^::end$");
 
+        // Run command.
+        private readonly Regex rgxRun = new Regex("^::run\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
+
         // If command.
         private readonly Regex rgxIf = new Regex("^::if \\((?<LeftValue>) (?<Operator>) (?<RightValue>)\\)->\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
 
@@ -133,6 +136,23 @@ namespace t14
                             break;
                         }
 
+                        if (rgxRun.IsMatch(line))
+                        {
+                            string blockName = rgxRun.Match(line).Groups["BlockName"].Value.Trim();
+
+                            if (!string.IsNullOrEmpty(blockName))
+                            {
+                                foreach (Block block in blocks)
+                                {
+                                    if (block.Name.Equals(blockName))
+                                    {
+                                        ParseScriptLines(lines, (block.LineIndex + 1), end);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
                         ParseCommand(line);
                     }
                 }
@@ -193,9 +213,17 @@ namespace t14
             {
                 foreach (Block block in blocks)
                 {
-                    _scriptInitialized = true;
+                    if (block.Name.Equals("main"))
+                    {
+                        _scriptInitialized = true;
+                        ParseScriptLines(lines, (block.LineIndex + 1), end);
+                        break;
+                    }
+                }
 
-                    ParseScriptLines(lines, (block.LineIndex + 1), end);
+                if (!_scriptInitialized)
+                {
+                    Console.WriteLine("main block not found");
                 }
             }
         }
