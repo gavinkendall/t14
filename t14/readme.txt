@@ -84,6 +84,7 @@ like this ...
 ::set $black = black
 ::set $pink = pink
 ::set $black = $pink
+$black
 
 ... so that, in this example, the variable $black will output "pink".
 
