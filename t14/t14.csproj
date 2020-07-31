@@ -7,11 +7,13 @@
     <AssemblyOriginatorKeyFile>t14.snk</AssemblyOriginatorKeyFile>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
-    <Version>1.0.0.0</Version>
+    <Version>1.0.0.1</Version>
     <Authors>Gavin Kendall</Authors>
     <Product>T14</Product>
     <Description>An interpreted language for making text-based console applications.</Description>
     <Copyright>2020 Gavin Kendall</Copyright>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
