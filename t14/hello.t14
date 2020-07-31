@@ -33,6 +33,19 @@ This is 1234567 in hexadecimal ...
 This is 1234567 in binary ...
 ::dec->bin(1234567)
 
+# Define variables with values.
+::set $black = black
+::set $pink = pink
+
+# Output "black pink".
+$black $pink
+
+# Replace the value of a varilable with the value of another variable.
+::set $black = $pink
+
+# Output "pink pink".
+$black $pink
+
 ::run(finish)
 ::end
 

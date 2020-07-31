@@ -79,6 +79,14 @@ I'm just here to say $hello
 ... this will output ...
 I'm just here to say hello world
 
+You can also replace the value of a variable with the value of another variable
+like this ...
+::set $black = black
+::set $pink = pink
+::set $black = $pink
+
+... so that, in this example, the variable $black will output "pink".
+
 
 
 Conversion Methods

@@ -33,8 +33,9 @@ namespace t14
         private readonly Regex _rgxIf = new Regex("^::if \\((?<LeftValue>) (?<Operator>) (?<RightValue>)\\)->\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
 
         // Variables.
-        private readonly VariableCollection variables;
-        private readonly Regex _rgxVariable = new Regex("^::set (?<VariableName>\\$[0-9a-zA-Z_-]+) = (?<VariableValue>.+)$");
+        private readonly VariableCollection _variables;
+        private readonly Regex _rgxSetVariableWithValue = new Regex("^::set (?<VariableName>\\$[0-9a-zA-Z_-]+) = (?<VariableValue>.+)$");
+        private readonly Regex _rgxSetVariableWithVariable = new Regex("^::set (?<VariableWithOldValue>\\$[0-9a-zA-Z_-]+) = (?<VariableWithNewValue>\\$[0-9a-zA-Z_-]+)$");
 
         // The moment where you're looking at something and just go, "What the fuck is this?!".
         // So just pass in the unknown value and let the wtf command do the rest.
@@ -64,7 +65,7 @@ namespace t14
             _scriptInitialized = false;
 
             _blocks = new BlockCollection();
-            variables = new VariableCollection();
+            _variables = new VariableCollection();
         }
 
         /// <summary>
@@ -176,7 +177,7 @@ namespace t14
                             if (word.StartsWith("$", StringComparison.CurrentCulture))
                             {
                                 // Output the value of the variable if we find it in the variale collection using the variable name.
-                                Variable variable = variables.GetByName(word);
+                                Variable variable = _variables.GetByName(word);
 
                                 if (variable != null)
                                 {
@@ -231,18 +232,32 @@ namespace t14
         /// <summary>
         /// Parses a T14 command.
         /// </summary>
-        /// <param name="command">The command to parse.</param>
+        /// <param name="command">The command to parse.</param>
         public void ParseCommand(string command)
         {
-            if (_rgxVariable.IsMatch(command))
+            if (_rgxSetVariableWithValue.IsMatch(command))
             {
                 Variable variable = new Variable()
                 {
-                    Name = _rgxVariable.Match(command).Groups["VariableName"].Value,
-                    Value = _rgxVariable.Match(command).Groups["VariableValue"].Value.Trim()
+                    Name = _rgxSetVariableWithValue.Match(command).Groups["VariableName"].Value,
+                    Value = _rgxSetVariableWithValue.Match(command).Groups["VariableValue"].Value.Trim()
                 };
 
-                variables.Add(variable);
+                _variables.Add(variable);
+            }
+
+            if (_rgxSetVariableWithVariable.IsMatch(command))
+            {
+                string variableWithOldValue = _rgxSetVariableWithVariable.Match(command).Groups["VariableWithOldValue"].Value;
+                string variableWithNewValue = _rgxSetVariableWithVariable.Match(command).Groups["VariableWithNewValue"].Value;
+
+                Variable varOld = _variables.GetByName(variableWithOldValue);
+                Variable varNew = _variables.GetByName(variableWithNewValue);
+
+                if (varOld != null && varNew != null)
+                {
+                    _variables.GetByName(variableWithOldValue).Value = _variables.GetByName(variableWithNewValue).Value;
+                }
             }
 
             if (_rgxWTF.IsMatch(command))
