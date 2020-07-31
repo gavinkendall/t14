@@ -81,10 +81,12 @@ I'm just here to say hello world
 
 You can also replace the value of a variable with the value of another variable
 like this ...
+::start(main)
 ::set $black = black
 ::set $pink = pink
 ::set $black = $pink
 $black
+::end
 
 ... so that, in this example, the variable $black will output "pink".
 
