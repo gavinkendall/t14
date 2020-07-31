@@ -256,7 +256,7 @@ namespace t14
 
                 if (varOld != null && varNew != null)
                 {
-                    _variables.GetByName(variableWithOldValue).Value = _variables.GetByName(variableWithNewValue).Value;
+                    varOld.Value = varNew.Value;
                 }
             }
 

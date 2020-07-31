@@ -14,7 +14,7 @@ namespace t14
     /// </summary>
     public class VariableCollection
     {
-        private readonly List<Variable> variables = new List<Variable>();
+        private readonly List<Variable> _variables = new List<Variable>();
 
         /// <summary>
         /// Variable Collection constructor.
@@ -30,9 +30,9 @@ namespace t14
         /// <param name="variable">A variable to add to the variable collection.</param>
         public void Add(Variable variable)
         {
-            if (!variables.Contains(variable))
+            if (!_variables.Contains(variable))
             {
-                variables.Add(variable);
+                _variables.Add(variable);
             }
         }
 
@@ -43,7 +43,7 @@ namespace t14
         /// <returns>The variable found in the variable collection.</returns>
         public Variable GetByName(string name)
         {
-            foreach(Variable variable in variables)
+            foreach(Variable variable in _variables)
             {
                 if (variable.Name.Equals(name))
                 {
