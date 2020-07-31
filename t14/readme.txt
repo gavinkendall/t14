@@ -9,6 +9,17 @@ Summary
 -------
 T14 is a language for text-based console applications.
 
+You will need to install .NET Core Runtime from https://dotnet.microsoft.com/
+in order to successfully run the T14 language interpreter on your system.
+
+You will also need these files from https://sourceforge.net/projects/t14/files/
+t14.dll
+t14.exe
+t14.runtimeconfig.json
+
+Optionally, you can download the provided "hello.t14" file to experiment
+writing and running a T14 script.
+
 You would normally run the T14 interpreter with a given filename that ends
 with a ".t14" file extension as the first command line argument for the
 interpreter. For example, on Windows, you would run "t14.exe hello.t14" and
