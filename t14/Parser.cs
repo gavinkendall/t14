@@ -19,42 +19,42 @@ namespace t14
         private bool _scriptInitialized;
 
         // Exit commands (including FTS = Fuck This Shit and FI = Fuck It).
-        private readonly Regex rgxExit = new Regex("^::exit$|^::quit$|^::fts$|^::fi$");
+        private readonly Regex _rgxExit = new Regex("^::exit$|^::quit$|^::fts$|^::fi$");
 
         // Start and End commands for blocks of code.
-        private readonly BlockCollection blocks;
-        private readonly Regex rgxStart = new Regex("^::start\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
-        private readonly Regex rgxEnd = new Regex("^::end$");
+        private readonly BlockCollection _blocks;
+        private readonly Regex _rgxStart = new Regex("^::start\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
+        private readonly Regex _rgxEnd = new Regex("^::end$");
 
         // Run command.
-        private readonly Regex rgxRun = new Regex("^::run\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
+        private readonly Regex _rgxRun = new Regex("^::run\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
 
         // If command.
-        private readonly Regex rgxIf = new Regex("^::if \\((?<LeftValue>) (?<Operator>) (?<RightValue>)\\)->\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
+        private readonly Regex _rgxIf = new Regex("^::if \\((?<LeftValue>) (?<Operator>) (?<RightValue>)\\)->\\((?<BlockName>[0-9a-zA-Z_-]+)\\)$");
 
         // Variables.
         private readonly VariableCollection variables;
-        private readonly Regex rgxVariable = new Regex("^::set (?<VariableName>\\$[0-9a-zA-Z_-]+) = (?<VariableValue>.+)$");
+        private readonly Regex _rgxVariable = new Regex("^::set (?<VariableName>\\$[0-9a-zA-Z_-]+) = (?<VariableValue>.+)$");
 
         // The moment where you're looking at something and just go, "What the fuck is this?!".
         // So just pass in the unknown value and let the wtf command do the rest.
-        private readonly Regex rgxWTF = new Regex("^::wtf\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxWTF = new Regex("^::wtf\\((?<Value>.+)\\)$");
 
         // Conversion methods.
-        private readonly Regex rgxHexToBin = new Regex("^::hex->bin\\((?<Value>.+)\\)$");
-        private readonly Regex rgxHexToDec = new Regex("^::hex->dec\\((?<Value>.+)\\)$");
-        private readonly Regex rgxHexToASCII = new Regex("^::hex->ascii\\((?<Value>.+)\\)$");
-        private readonly Regex rgxBinToDec = new Regex("^::bin->dec\\((?<Value>.+)\\)$");
-        private readonly Regex rgxBinToHex = new Regex("^::bin->hex\\((?<Value>.+)\\)$");
-        private readonly Regex rgxBinToASCII = new Regex("^::bin->ascii\\((?<Value>.+)\\)$");
-        private readonly Regex rgxDecToHex = new Regex("^::dec->hex\\((?<Value>.+)\\)$");
-        private readonly Regex rgxDecToBin = new Regex("^::dec->bin\\((?<Value>.+)\\)$");
-        private readonly Regex rgxDecToASCII = new Regex("^::dec->ascii\\((?<Value>.+)\\)$");
-        private readonly Regex rgxASCIIToBin = new Regex("^::ascii->bin\\((?<Value>.+)\\)$");
-        private readonly Regex rgxASCIIToHex = new Regex("^::ascii->hex\\((?<Value>.+)\\)$");
-        private readonly Regex rgxASCIIToDec = new Regex("^::ascii->dec\\((?<Value>.+)\\)$");
-        private readonly Regex rgxTextToMorse = new Regex("^::morse\\((?<Value>.+)\\)$|^::text->morse\\((?<Value>.+)\\)$");
-        private readonly Regex rgxMorseToText = new Regex("^::morse->text\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxHexToBin = new Regex("^::hex->bin\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxHexToDec = new Regex("^::hex->dec\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxHexToASCII = new Regex("^::hex->ascii\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxBinToDec = new Regex("^::bin->dec\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxBinToHex = new Regex("^::bin->hex\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxBinToASCII = new Regex("^::bin->ascii\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxDecToHex = new Regex("^::dec->hex\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxDecToBin = new Regex("^::dec->bin\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxDecToASCII = new Regex("^::dec->ascii\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxASCIIToBin = new Regex("^::ascii->bin\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxASCIIToHex = new Regex("^::ascii->hex\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxASCIIToDec = new Regex("^::ascii->dec\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxTextToMorse = new Regex("^::morse\\((?<Value>.+)\\)$|^::text->morse\\((?<Value>.+)\\)$");
+        private readonly Regex _rgxMorseToText = new Regex("^::morse->text\\((?<Value>.+)\\)$");
 
         /// <summary>
         /// Parser constructor.
@@ -63,7 +63,7 @@ namespace t14
         {
             _scriptInitialized = false;
 
-            blocks = new BlockCollection();
+            _blocks = new BlockCollection();
             variables = new VariableCollection();
         }
 
@@ -111,38 +111,38 @@ namespace t14
                 // Any line that starts with :: should be interpreted as a command.
                 if (line.StartsWith("::", StringComparison.CurrentCulture))
                 {
-                    if (!_scriptInitialized && rgxStart.IsMatch(line))
+                    if (!_scriptInitialized && _rgxStart.IsMatch(line))
                     {
                         Block block = new Block()
                         {
-                            Name = rgxStart.Match(line).Groups["BlockName"].Value.Trim(),
+                            Name = _rgxStart.Match(line).Groups["BlockName"].Value.Trim(),
                             LineIndex = lineIndex
                         };
 
-                        blocks.Add(block);
+                        _blocks.Add(block);
 
                         continue;
                     }
 
                     if (_scriptInitialized)
                     {
-                        if (rgxExit.IsMatch(line))
+                        if (_rgxExit.IsMatch(line))
                         {
                             Environment.Exit(0);
                         }
 
-                        if (rgxEnd.IsMatch(line))
+                        if (_rgxEnd.IsMatch(line))
                         {
                             break;
                         }
 
-                        if (rgxRun.IsMatch(line))
+                        if (_rgxRun.IsMatch(line))
                         {
-                            string blockName = rgxRun.Match(line).Groups["BlockName"].Value.Trim();
+                            string blockName = _rgxRun.Match(line).Groups["BlockName"].Value.Trim();
 
                             if (!string.IsNullOrEmpty(blockName))
                             {
-                                foreach (Block block in blocks)
+                                foreach (Block block in _blocks)
                                 {
                                     if (block.Name.Equals(blockName))
                                     {
@@ -211,7 +211,7 @@ namespace t14
 
             if (!_scriptInitialized)
             {
-                foreach (Block block in blocks)
+                foreach (Block block in _blocks)
                 {
                     if (block.Name.Equals("main"))
                     {
@@ -234,20 +234,20 @@ namespace t14
         /// <param name="command">The command to parse.</param>
         public void ParseCommand(string command)
         {
-            if (rgxVariable.IsMatch(command))
+            if (_rgxVariable.IsMatch(command))
             {
                 Variable variable = new Variable()
                 {
-                    Name = rgxVariable.Match(command).Groups["VariableName"].Value,
-                    Value = rgxVariable.Match(command).Groups["VariableValue"].Value.Trim()
+                    Name = _rgxVariable.Match(command).Groups["VariableName"].Value,
+                    Value = _rgxVariable.Match(command).Groups["VariableValue"].Value.Trim()
                 };
 
                 variables.Add(variable);
             }
 
-            if (rgxWTF.IsMatch(command))
+            if (_rgxWTF.IsMatch(command))
             {
-                Convert.WhatTheFuckIsThis(rgxWTF.Match(command).Groups["Value"].Value);
+                Convert.WhatTheFuckIsThis(_rgxWTF.Match(command).Groups["Value"].Value);
             }
 
             ParseConversionMethods(command, true);
@@ -257,88 +257,88 @@ namespace t14
         {
             bool match = false;
 
-            if (rgxHexToBin.IsMatch(value))
+            if (_rgxHexToBin.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromHexToBinary(rgxHexToBin.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromHexToBinary(_rgxHexToBin.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxHexToDec.IsMatch(value))
+            if (_rgxHexToDec.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromHexToDecimal(rgxHexToDec.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromHexToDecimal(_rgxHexToDec.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxHexToASCII.IsMatch(value))
+            if (_rgxHexToASCII.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromHexToASCII(rgxHexToASCII.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromHexToASCII(_rgxHexToASCII.Match(value).Groups["Value"].Value));
             }
 
-            if(rgxBinToDec.IsMatch(value))
+            if(_rgxBinToDec.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromBinaryToDecimal(rgxBinToDec.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromBinaryToDecimal(_rgxBinToDec.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxBinToHex.IsMatch(value))
+            if (_rgxBinToHex.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromBinaryToHex(rgxBinToHex.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromBinaryToHex(_rgxBinToHex.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxBinToASCII.IsMatch(value))
+            if (_rgxBinToASCII.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromBinaryToASCII(rgxBinToASCII.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromBinaryToASCII(_rgxBinToASCII.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxDecToHex.IsMatch(value))
+            if (_rgxDecToHex.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromDecimalToHex(rgxDecToHex.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromDecimalToHex(_rgxDecToHex.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxDecToBin.IsMatch(value))
+            if (_rgxDecToBin.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromDecimalToBinary(rgxDecToBin.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromDecimalToBinary(_rgxDecToBin.Match(value).Groups["Value"].Value));
             }
 
-            if(rgxDecToASCII.IsMatch(value))
+            if(_rgxDecToASCII.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromDecimalToASCII(rgxDecToASCII.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromDecimalToASCII(_rgxDecToASCII.Match(value).Groups["Value"].Value));
             }
 
-            if(rgxASCIIToBin.IsMatch(value))
+            if(_rgxASCIIToBin.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromASCIIToBinary(rgxASCIIToBin.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromASCIIToBinary(_rgxASCIIToBin.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxASCIIToHex.IsMatch(value))
+            if (_rgxASCIIToHex.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromASCIIToHex(rgxASCIIToHex.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromASCIIToHex(_rgxASCIIToHex.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxASCIIToDec.IsMatch(value))
+            if (_rgxASCIIToDec.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromASCIIToDecimal(rgxASCIIToDec.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromASCIIToDecimal(_rgxASCIIToDec.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxTextToMorse.IsMatch(value))
+            if (_rgxTextToMorse.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromTextToMorse(rgxTextToMorse.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromTextToMorse(_rgxTextToMorse.Match(value).Groups["Value"].Value));
             }
 
-            if (rgxMorseToText.IsMatch(value))
+            if (_rgxMorseToText.IsMatch(value))
             {
                 match = true;
-                Console.Write(Convert.FromMorseToText(rgxMorseToText.Match(value).Groups["Value"].Value));
+                Console.Write(Convert.FromMorseToText(_rgxMorseToText.Match(value).Groups["Value"].Value));
             }
 
             if (match && newline)
