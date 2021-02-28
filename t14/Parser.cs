@@ -35,7 +35,7 @@ namespace t14
         // Variables.
         private readonly VariableCollection _variables;
         private readonly Regex _rgxVariableName = new Regex("^\\[(?<VariableName>[0-9a-zA-Z_-]+)\\]$");
-        private readonly Regex _rgxVariablesInLine = new Regex("(?<Variables>\\[(?<VariableName>[0-9a-zA-Z_-]+)\\]+)");
+        private readonly Regex _rgxVariablesInLine = new Regex("\\[(?<VariableName>[0-9a-zA-Z_-]+)\\]+");
         private readonly Regex _rgxSetVariableWithValue = new Regex("^(?<Command>::set \\[(?<VariableName>[0-9a-zA-Z_-]+)\\] = (?<VariableValue>.+))$");
         private readonly Regex _rgxSetVariableWithVariable = new Regex("^(?<Command>::set \\[(?<VariableWithOldValue>[0-9a-zA-Z_-]+)\\] = \\[(?<VariableWithNewValue>[0-9a-zA-Z_-]+)\\])$");
 
@@ -161,21 +161,26 @@ namespace t14
                         }
                     }
 
+                    // Go through each line looking for T14 commands to parse.
                     line = ParseCommand(line);
+
+                    // Go through each line looking for T14 conversion methods to parse.
                     line = ParseConversionMethod(line);
 
                     if (!string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line))
                     {
-                        //Console.WriteLine(line.Replace(line, GetVariableNameFromValue(line)));
-
+                        // This is little trick is difficult to explain but basically it's finding the values of the variables
+                        // and replacing the names of the variables with the values of the variables on a single line with regex and string replace.
                         if (_rgxVariablesInLine.IsMatch(line))
                         {
-                            foreach (Match variableName in _rgxVariablesInLine.Matches(line))
+                            foreach (Match variableLineMatch in _rgxVariablesInLine.Matches(line))
                             {
-                                //Console.Write(_variables.GetByName(variableName.Groups[1].Value));
+                                line = line.Replace(variableLineMatch.Groups[0].Value.ToString(), _variables.GetByName(variableLineMatch.Groups[1].Value).Value);
                             }
                         }
-                        //Console.WriteLine(line);
+
+                        // Simple output the parsed line that has been processed.
+                        Console.WriteLine(line);
                     }
                 }
             }
@@ -210,13 +215,25 @@ namespace t14
         {
             if (_rgxSetVariableWithValue.IsMatch(line))
             {
-                Variable variable = new Variable()
-                {
-                    Name = _rgxSetVariableWithValue.Match(line).Groups["VariableName"].Value,
-                    Value = _rgxSetVariableWithValue.Match(line).Groups["VariableValue"].Value.Trim()
-                };
+                string variableName = _rgxSetVariableWithValue.Match(line).Groups["VariableName"].Value;
+                string variableValue = _rgxSetVariableWithValue.Match(line).Groups["VariableValue"].Value.Trim();
 
-                _variables.Add(variable);
+                if (_variables.GetByName(variableName) == null)
+                {
+                    // This is a new variable to add to the collection.
+                    Variable variable = new Variable()
+                    {
+                        Name = variableName,
+                        Value = variableValue
+                    };
+
+                    _variables.Add(variable);
+                }
+                else
+                {
+                    // Replace the existing variable's value with the new variable value.
+                    _variables.GetByName(variableName).Value = variableValue;
+                }
 
                 line = line.Replace(_rgxSetVariableWithValue.Match(line).Groups["Command"].Value, string.Empty);
             }

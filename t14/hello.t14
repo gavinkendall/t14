@@ -19,8 +19,12 @@
 
 
 
-# The next line is standard output of a variable's value.
-[well-hello-there] [star_wars_hero]
+# The next line is standard output with variables.
+[well-hello-there], [star_wars_hero].
+
+# Let's change the value for one of the variables and output again.
+::set [star_wars_hero] = Jedi Master Luke
+Perhaps it's also a good time to say, "[well-hello-there] [star_wars_hero]!"
 
 # We're going to run a block named "MovieTitle".
 ::run[MovieTitle]
