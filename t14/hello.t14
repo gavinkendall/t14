@@ -1,57 +1,38 @@
-# T14 1.0 by Gavin Kendall
+# T14 Interpreted Scripting Language by Gavin Kendall
 
-# This is a simple text file used to test the functionality of the T14 interpreted language.
-# We always begin with a ::start command.
-::start(main)
+# This is a simple text file used to test T14 scripting functionality.
+# We always begin with a main block. Every block has a ::start and an ::end
+::start[main]
 
 # This is a comment and should be ignored by the parser.
 
-Starting an example T14 script!
-
-# The next line is an example of setting a variable with a value. The type isn't specified. The parser should figure it out.
-::set $foo-Bar = hello
+# The next line is an example of setting a variable with a value.
+# The type isn't specified. The parser should figure it out.
+::set [well-hello-there] = Well hello there
+::set [star_wars_hero] = General Kenobi
 
 # Here's a number.
-::set $My_number = 123
+::set [Episode] = 3
 
-# Tabs and new lines shouldn't appear
+# Tabs and new lines shouldn't appear in console output.
 		
 
 
 
 # The next line is standard output of a variable's value.
-Let's output the value of the foo-Bar variable as $foo-Bar
+[well-hello-there] [star_wars_hero]
 
-# Output the other variable
-Let's see what happens with the My_number variable value of $My_number (does it show a number?)
+# We're going to run a block named "MovieTitle".
+::run[MovieTitle]
 
-# Output 1234567 into its hexadecimal equivalent.
-This is 1234567 in hexadecimal ...
-::dec->hex(1234567)
-
-# Output 1234567 into its binary equivalent.
-This is 1234567 in binary ...
-::dec->bin(1234567)
-
-# Define variables with values.
-::set $black = black
-::set $pink = pink
-
-# Output "black pink".
-$black $pink
-
-# Replace the value of a varilable with the value of another variable.
-::set $black = $pink
-
-# Output "pink pink".
-$black $pink
-
-::run(finish)
+# The end of the main block.
 ::end
 
 This line shouldn't be displayed and shouldn't be considered as part of the script
 because it's outside the scope of a ::start and ::end block.
 
-::start(finish)
-This line should be displayed. We're ending the script here.
+# This block was called from the main block and has access to te same variables
+# because every variable is global in scope.
+::start[MovieTitle]
+- Star Wars Episode ::dec->roman[[Episode]] -
 ::end

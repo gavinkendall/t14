@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // <copyright file="Convert.cs" company="Gavin Kendall">
-//     Copyright (c) Gavin Kendall. All rights reserved.
+//     Copyright (c) 2020-2021 Gavin Kendall
 // </copyright>
 // <author>Gavin Kendall</author>
 // <summary>A class for converting stuff.</summary>
@@ -17,11 +17,29 @@ namespace t14
     /// <summary>
     /// A class for converting stuff.
     /// </summary>
-    public static class Convert
+    public class Convert
     {
+        // Roman Numerals
+        private Dictionary<string, int> romanNumerals = new Dictionary<string, int>()
+        {
+            {"M", 1000},
+            {"CM", 900},
+            {"D", 500},
+            {"CD", 400},
+            {"C", 100},
+            {"XC", 90},
+            {"L", 50},
+            {"XL", 40},
+            {"X", 10},
+            {"IX", 9},
+            {"V", 5},
+            {"IV", 4},
+            {"I", 1}
+        };
+
         // International Morse Code
         // https://en.wikipedia.org/wiki/Morse_code
-        private static Dictionary<char, string> morseCodes = new Dictionary<char, string>()
+        private Dictionary<char, string> morseCodes = new Dictionary<char, string>()
         {
             { 'A', ".-" },
             { 'B', "-..." },
@@ -62,10 +80,48 @@ namespace t14
         };
 
         /// <summary>
+        /// Based on code from http://www.blackwasp.co.uk/MorseCode.aspx
+        /// </summary>
+        /// <param name="word"></param>
+        /// <returns></returns>
+        private string MorseWord(string word)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char ch in word)
+            {
+                if (sb.Length != 0 && sb[sb.Length - 1] != ' ')
+                    sb.Append(" ");
+
+                sb.Append(MorseCharacter(ch));
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Based on code from http://www.blackwasp.co.uk/MorseCode.aspx
+        /// </summary>
+        /// <param name="ch"></param>
+        /// <returns></returns>
+        private string MorseCharacter(char ch)
+        {
+            foreach (char c in morseCodes.Keys)
+            {
+                if (c == ch)
+                {
+                    return morseCodes[c];
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Attempts to figure out what a given unknown value actually is by trying out different conversion methods.
         /// </summary>
         /// <param name="unknown">Any unknown value.</param>
-        public static void WhatTheFuckIsThis(string unknown)
+        public void WhatTheFuckIsThis(string unknown)
         {
             if (string.IsNullOrEmpty(unknown) || string.IsNullOrWhiteSpace(unknown))
                 return;
@@ -120,7 +176,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The hexadecimal value to convert into a binary value.</param>
         /// <returns>The converted value in binary.</returns>
-        public static string FromHexToBinary(string value)
+        public string FromHexToBinary(string value)
         {
             return System.Convert.ToString(System.Convert.ToInt64(value, 16), 2);
         }
@@ -131,7 +187,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The hexadecimal value to convert as a decimal value.</param>
         /// <returns>The converted value in decimal.</returns>
-        public static string FromHexToDecimal(string value)
+        public string FromHexToDecimal(string value)
         {
             if (int.TryParse(value, NumberStyles.HexNumber,
                 CultureInfo.CurrentCulture, out int integer))
@@ -148,7 +204,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The hexadecimal value to convert into ASCII.</param>
         /// <returns>The converted value in ASCII.</returns>
-        public static string FromHexToASCII(string value)
+        public string FromHexToASCII(string value)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -170,7 +226,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The binary value to convert to decimal.</param>
         /// <returns>The converted value in decimal.</returns>
-        public static string FromBinaryToDecimal(string value)
+        public string FromBinaryToDecimal(string value)
         {
             return System.Convert.ToInt64(value, 2).ToString();
         }
@@ -181,7 +237,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The binary value to convert to hexadecimal.</param>
         /// <returns>The converted value in hexadecimal.</returns>
-        public static string FromBinaryToHex(string value)
+        public string FromBinaryToHex(string value)
         {
             return System.Convert.ToInt64(value, 2).ToString("X");
         }
@@ -192,7 +248,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The binary value to convert into ASCII.</param>
         /// <returns>The converted value in ASCII.</returns>
-        public static string FromBinaryToASCII(string value)
+        public string FromBinaryToASCII(string value)
         {
             var list = new List<Byte>();
 
@@ -215,7 +271,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The decimal value to convert to hexadecimal.</param>
         /// <returns>The converted value in hexadecimal.</returns>
-        public static string FromDecimalToHex(string value)
+        public string FromDecimalToHex(string value)
         {
             if (int.TryParse(value, out int number))
             {
@@ -231,7 +287,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The decimal value to convert to binary.</param>
         /// <returns>The converted value in binary.</returns>
-        public static string FromDecimalToBinary(string value)
+        public string FromDecimalToBinary(string value)
         {
             if (int.TryParse(value, out int number))
             {
@@ -247,7 +303,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The decimal value to convert to ASCII.</param>
         /// <returns>The converted value in ASCII.</returns>
-        public static string FromDecimalToASCII(string value)
+        public string FromDecimalToASCII(string value)
         {
             return System.Convert.ToChar(System.Convert.ToInt64(value)).ToString();
         }
@@ -258,7 +314,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The ASCII value to convert to binary.</param>
         /// <returns>The converted value as binary.</returns>
-        public static string FromASCIIToBinary(string value)
+        public string FromASCIIToBinary(string value)
         {
             StringBuilder sb = new StringBuilder();
             byte[] bytes = Encoding.ASCII.GetBytes(value);
@@ -277,7 +333,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The ASCII value to convert to hex.</param>
         /// <returns>The converted value as hex.</returns>
-        public static string FromASCIIToHex(string value)
+        public string FromASCIIToHex(string value)
         {
             StringBuilder sb = new StringBuilder();
             byte[] bytes = Encoding.ASCII.GetBytes(value);
@@ -296,7 +352,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The ASCII value to convert to decimal.</param>
         /// <returns>The converted value as ASCII.</returns>
-        public static string FromASCIIToDecimal(string value)
+        public string FromASCIIToDecimal(string value)
         {
             return System.Convert.ToInt64(System.Convert.ToChar(value)).ToString();
         }
@@ -309,7 +365,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The text to convert into Morse code.</param>
         /// <returns>The Morse code representation of the given text.</returns>
-        public static string FromTextToMorse(string value)
+        public string FromTextToMorse(string value)
         {
             string[] words = value.ToUpper().Split(' ');
 
@@ -332,7 +388,7 @@ namespace t14
         /// </summary>
         /// <param name="value">The morse code to convert back to normal text.</param>
         /// <returns>The normal text of the given morse code.</returns>
-        public static string FromMorseToText(string value)
+        public string FromMorseToText(string value)
         {
             string[] words = value.Split('/');
 
@@ -355,42 +411,29 @@ namespace t14
             return sb.ToString();
         }
 
-        /// <summary>
-        /// Based on code from http://www.blackwasp.co.uk/MorseCode.aspx
-        /// </summary>
-        /// <param name="word"></param>
-        /// <returns></returns>
-        private static string MorseWord(string word)
+        public string FromDecimalToRoman(string value)
         {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (char ch in word)
+            if (int.TryParse(value, out int number))
             {
-                if (sb.Length != 0 && sb[sb.Length - 1] != ' ')
-                    sb.Append(" ");
+                value = string.Empty;
+                var remainder = number;
 
-                sb.Append(MorseCharacter(ch));
-            }
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Based on code from http://www.blackwasp.co.uk/MorseCode.aspx
-        /// </summary>
-        /// <param name="ch"></param>
-        /// <returns></returns>
-        private static string MorseCharacter(char ch)
-        {
-            foreach(char c in morseCodes.Keys)
-            {
-                if (c == ch)
+                foreach (var key in romanNumerals.Keys)
                 {
-                    return morseCodes[c];
+                    while (remainder >= romanNumerals[key])
+                    {
+                        value += key;
+                        remainder -= romanNumerals[key];
+                    }
                 }
             }
 
-            return string.Empty;
+            return value;
+        }
+
+        public string FromRomanToDecimal(string value)
+        {
+            return value;
         }
     }
 }
