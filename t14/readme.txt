@@ -1,6 +1,5 @@
 ﻿T14 Interpreted Scripting Language by Gavin Kendall
-Last updated on 2020-07-31 (July 31, 2020)
-[The information presented here refers to version 1.0.0.1]
+[The information presented in this README refers to version 1.0.0.2]
 ================================================================================
 
 
@@ -35,7 +34,7 @@ The T14 language is, structurally, based on blocks of code. You start a block
 with ::start and end it with ::end and every T14 script needs, at least,
 a block named "main". So open your text editor, write the following lines in a
 new file and save the file as "hello.t14" (or whatever filename you choose) ...
-::start(main)
+::start[main]
 hello world
 ::end
 
@@ -48,13 +47,13 @@ hello world
 Blocks
 ------
 Did it work? If so let's continue with writing another block in your script by
-adding ::start(my_block) and ending it with ::end and then we'll run a block
+adding ::start[my_block] and ending it with ::end and then we'll run a block
 with the ::run command so your T14 script will now look like this ...
-::start(main)
+::start[main]
 hello world
-::run(my_block)
+::run[my_block]
 ::end
-::start(my_block)
+::start[my_block]
 hello again
 ::end
 
@@ -71,41 +70,44 @@ Variables
 ---------
 To define a variable use the ::set command and then you can output the value of
 the variable within a block. For example, in your main block ...
-::start(main)
-::set $hello = hello world
-I'm just here to say $hello
+::start[main]
+::set [hello] = hello world
+I'm just here to say [hello].
 ::end
 
-... this will output ...
-I'm just here to say hello world
+You can change a value of a variable by setting a different value ...
+::start[main]
+::set [hello] = hello
+[hello]
+::set [hello] = hi
+[hello]
+::end
 
 You can also replace the value of a variable with the value of another variable
 like this ...
-::start(main)
-::set $black = black
-::set $pink = pink
-::set $black = $pink
-$black
+::start[main]
+::set [black] = black
+::set [pink] = pink
+::set [black] = [pink]
+[black]
 ::end
-
-... so that, in this example, the variable $black will output "pink".
 
 
 
 Conversion Methods
 ------------------
 Here is a list of methods you can use in your T14 script to convert stuff.
-::dec->bin(65)
-::dec->hex(65)
-::dec->ascii(65)
-::bin->dec(01000001)
-::bin->hex(01000001)
-::bin->ascii(01000001)
-::hex->bin(41)
-::hex->dec(41)
-::hex->ascii(41)
-::ascii->bin(A)
-::ascii->hex(A)
-::ascii->dec(A)
-::text->morse(hello world) or ::morse(hello world)
-::morse->text(.... . .-.. .-..---/.---- - .-. .- ..-..)
+::dec->bin[65]
+::dec->hex[65]
+::dec->ascii[65]
+::bin->dec[01000001]
+::bin->hex[01000001]
+::bin->ascii[01000001]
+::hex->bin[41]
+::hex->dec[41]
+::hex->ascii[41]
+::ascii->bin[A]
+::ascii->hex[A]
+::ascii->dec[A]
+::text->morse[hello world] or ::morse[hello world]
+::morse->text[.... . .-.. .-..---/.---- - .-. .- ..-..]
