@@ -60,6 +60,7 @@ namespace t14
         private readonly Regex _rgxTextToMorse = new Regex("(?<Method>::morse\\[(?<Value>.+)\\]$|^::text->morse\\[(?<Value>.+)\\])");
         private readonly Regex _rgxMorseToText = new Regex("(?<Method>::morse->text\\[(?<Value>.+)\\])");
         private readonly Regex _rgxDecToRoman = new Regex("(?<Method>::dec->roman\\[(?<Value>.+)\\])");
+        private readonly Regex _rgxRomanToDec = new Regex("(?<Method>::roman->dec\\[(?<Value>.+)\\])");
 
         /// <summary>
         /// Parser constructor.
@@ -390,6 +391,13 @@ namespace t14
                 string value = GetVariableNameFromValue(_rgxDecToRoman.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToRoman(value));
+            }
+            else if (_rgxRomanToDec.IsMatch(line))
+            {
+                string method = _rgxRomanToDec.Match(line).Groups["Method"].Value;
+                string value = GetVariableNameFromValue(_rgxRomanToDec.Match(line).Groups["Value"].Value);
+
+                line = line.Replace(method, _convert.FromRomanToDecimal(value));
             }
 
             return line;

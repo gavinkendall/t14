@@ -24,7 +24,23 @@ with a ".t14" file extension as the first command line argument for the
 interpreter. For example, on Windows, you would run "t14.exe hello.t14" and
 on a Mac or Linux system with Microsoft .NET Core you would run
 "dotnet t14.dll hello.t14" to interpret, and parse, the T14 scripting language
-written in the provided T14 script.
+written in the provided T14 script. The output should be ...
+
+Well hello there, General Kenobi.
+Perhaps it's also a good time to say, "Well hello there Jedi Master Luke!"
+- Star Wars Episode III -
+
+You can also run the T14 interpreter with a T14 method and get the output
+in your terminal. For example ...
+t14.exe ::dec->bin[65]
+... will output ...
+1000001
+
+If you need to use whitespace then make sure to include double-quotes in
+the method being passed to the interpreter. For example ...
+t14.exe "::text->morse[hello world]"
+... will output ...
+.... . .-.. .-.. ---/.-- --- .-. .-.. -..
 
 
 
@@ -111,3 +127,5 @@ Here is a list of methods you can use in your T14 script to convert stuff.
 ::ascii->dec[A]
 ::text->morse[hello world] or ::morse[hello world]
 ::morse->text[.... . .-.. .-..---/.---- - .-. .- ..-..]
+::dec->roman[13]
+::roman->dec[XIII]

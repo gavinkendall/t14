@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Humanizer;
 
 namespace t14
 {
@@ -19,24 +20,6 @@ namespace t14
     /// </summary>
     public class Convert
     {
-        // Roman Numerals
-        private Dictionary<string, int> romanNumerals = new Dictionary<string, int>()
-        {
-            {"M", 1000},
-            {"CM", 900},
-            {"D", 500},
-            {"CD", 400},
-            {"C", 100},
-            {"XC", 90},
-            {"L", 50},
-            {"XL", 40},
-            {"X", 10},
-            {"IX", 9},
-            {"V", 5},
-            {"IV", 4},
-            {"I", 1}
-        };
-
         // International Morse Code
         // https://en.wikipedia.org/wiki/Morse_code
         private Dictionary<char, string> morseCodes = new Dictionary<char, string>()
@@ -171,7 +154,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::hex->bin(value)
+        /// ::hex->bin[value]
         /// Converts a hexadecimal value into a binary value.
         /// </summary>
         /// <param name="value">The hexadecimal value to convert into a binary value.</param>
@@ -182,7 +165,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::hex->dec(value)
+        /// ::hex->dec[value]
         /// Converts a hexadecimal value into a decimal value.
         /// </summary>
         /// <param name="value">The hexadecimal value to convert as a decimal value.</param>
@@ -199,7 +182,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::hex->ascii(value)
+        /// ::hex->ascii[value]
         /// Converts a hexadecimal value into ASCII.
         /// </summary>
         /// <param name="value">The hexadecimal value to convert into ASCII.</param>
@@ -221,7 +204,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::bin->dec(value)
+        /// ::bin->dec[value]
         /// Converts a binary value into its decimal representation.
         /// </summary>
         /// <param name="value">The binary value to convert to decimal.</param>
@@ -232,7 +215,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::bin->hex(value)
+        /// ::bin->hex[value]
         /// Converts a binary value into its hexadecimal representation.
         /// </summary>
         /// <param name="value">The binary value to convert to hexadecimal.</param>
@@ -243,7 +226,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::hex->ascii(value)
+        /// ::bin->ascii[value]
         /// Converts a binary value into ASCII.
         /// </summary>
         /// <param name="value">The binary value to convert into ASCII.</param>
@@ -266,7 +249,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::dec->hex(value)
+        /// ::dec->hex[value]
         /// Converts a decimal value into its hexadecimal representation.
         /// </summary>
         /// <param name="value">The decimal value to convert to hexadecimal.</param>
@@ -282,7 +265,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::dec->bin(value)
+        /// ::dec->bin[value]
         /// Converts a decimal value into its binary representation.
         /// </summary>
         /// <param name="value">The decimal value to convert to binary.</param>
@@ -298,7 +281,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::dec->ascii(value)
+        /// ::dec->ascii[value]
         /// Converts a decimal value into its ASCII representation.
         /// </summary>
         /// <param name="value">The decimal value to convert to ASCII.</param>
@@ -309,7 +292,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::ascii->bin(value)
+        /// ::ascii->bin[value]
         /// Converts ASCII to binary.
         /// </summary>
         /// <param name="value">The ASCII value to convert to binary.</param>
@@ -328,7 +311,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::ascii->hex(value)
+        /// ::ascii->hex[value]
         /// Converts ASCII to hexadecimal.
         /// </summary>
         /// <param name="value">The ASCII value to convert to hex.</param>
@@ -347,7 +330,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::ascii->dec(value)
+        /// ::ascii->dec[value]
         /// Converts ASCII to decimal.
         /// </summary>
         /// <param name="value">The ASCII value to convert to decimal.</param>
@@ -358,8 +341,8 @@ namespace t14
         }
 
         /// <summary>
-        /// ::morse(value)
-        /// ::text->morse(value)
+        /// ::morse[value]
+        /// ::text->morse[value]
         /// Converts text into Morse code.
         /// Based on code from http://www.blackwasp.co.uk/MorseCode.aspx
         /// </summary>
@@ -383,7 +366,7 @@ namespace t14
         }
 
         /// <summary>
-        /// ::morse->text(value)
+        /// ::morse->text[value]
         /// Converts morse code into normal text.
         /// </summary>
         /// <param name="value">The morse code to convert back to normal text.</param>
@@ -391,8 +374,6 @@ namespace t14
         public string FromMorseToText(string value)
         {
             string[] words = value.Split('/');
-
-            //Console.WriteLine(words[0]);
 
             StringBuilder sb = new StringBuilder();
 
@@ -411,29 +392,31 @@ namespace t14
             return sb.ToString();
         }
 
+        /// <summary>
+        /// ::dec->roman[value]
+        /// Converts a decimal value into a roman numeral value.
+        /// </summary>
+        /// <param name="value">The decimal value to convert into a roman numeral value.</param>
+        /// <returns>The converted value in roman numeral.</returns>
         public string FromDecimalToRoman(string value)
         {
             if (int.TryParse(value, out int number))
             {
-                value = string.Empty;
-                var remainder = number;
-
-                foreach (var key in romanNumerals.Keys)
-                {
-                    while (remainder >= romanNumerals[key])
-                    {
-                        value += key;
-                        remainder -= romanNumerals[key];
-                    }
-                }
+                value = number.ToRoman();
             }
 
             return value;
         }
 
+        /// <summary>
+        /// ::roman->dec[value]
+        /// Converts a roman numeral value into a decimal value.
+        /// </summary>
+        /// <param name="value">The roman numeral value to convert into a decimal value.</param>
+        /// <returns>The converted value in decimal.</returns>
         public string FromRomanToDecimal(string value)
         {
-            return value;
+            return value.FromRoman().ToString();
         }
     }
 }
