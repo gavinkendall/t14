@@ -16,6 +16,10 @@ namespace t14
     /// </summary>
     public class Parser
     {
+        private string[] _lines;
+        private int _start;
+        private int _end;
+
         private bool _scriptInitialized;
 
         // Exit commands (including FTS = Fuck This Shit and FI = Fuck It).
@@ -30,7 +34,10 @@ namespace t14
         private readonly Regex _rgxRun = new Regex("^(?<Command>::run\\[(?<BlockName>[0-9a-zA-Z_-]+)\\])$");
 
         // If command.
-        private readonly Regex _rgxIf = new Regex("^(?<Command>::if \\[(?<LeftValue>) (?<Operator>) (?<RightValue>)\\]->\\[(?<BlockName>[0-9a-zA-Z_-]+)\\])$");
+        private readonly Regex _rgxIf = new Regex("^(?<Command>::if \\[(?<LeftValue>.+) (?<Operator>[!><=]{1,2}) (?<RightValue>.+)\\]->\\[(?<BlockName>[0-9a-zA-Z_-]+)\\])$");
+
+        // If Else command.
+        private readonly Regex _rgxIfElse = new Regex("^(?<Command>::if \\[(?<LeftValue>.+) (?<Operator>[!><=]{1,2}) (?<RightValue>.+)\\]->\\[(?<BlockToRunIfTrue>[0-9a-zA-Z_-]+)\\] else \\[(?<BlockToRunIfFalse>[0-9a-zA-Z_-]+)\\])$");
 
         // Variables.
         private readonly VariableCollection _variables;
@@ -92,23 +99,22 @@ namespace t14
                 return;
             }
 
-            string[] lines = File.ReadAllLines(filename);
+            _lines = File.ReadAllLines(filename);
 
             // Parse the lines in the script from the very first line (index 0) to the last line.
-            ParseScriptLines(lines, 0, lines.Length);
+            _start = 0;
+            _end = _lines.Length;
+            ParseScriptLines();
         }
 
         /// <summary>
-        /// Parses the given lines looking for T14 variables and commands.
+        /// Parses the lines of a T14 script for T14 variables and commands.
         /// </summary>
-        /// <param name="lines">The lines to parse.</param>
-        /// <param name="start">The starting index.</param>
-        /// <param name="end">The ending index.</param>
-        public void ParseScriptLines(string[] lines, int start, int end)
+        public void ParseScriptLines()
         {
-            for (int lineIndex = start; lineIndex < end; lineIndex++)
+            for (int lineIndex = _start; lineIndex < _end; lineIndex++)
             {
-                string line = lines[lineIndex];
+                string line = _lines[lineIndex];
 
                 // Ignore any line that's just whitespace or starts with # because it should be interpreted as a comment.
                 if (string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line) || line.StartsWith("#", StringComparison.CurrentCulture))
@@ -138,28 +144,21 @@ namespace t14
                         Environment.Exit(0);
                     }
 
+                    // ::end
                     if (_rgxEnd.IsMatch(line))
                     {
                         break;
                     }
 
+                    // The regex for running blocks. A block begins with ::start and ends with ::end.
                     if (_rgxRun.IsMatch(line))
                     {
                         string blockName = _rgxRun.Match(line).Groups["BlockName"].Value.Trim();
 
                         line = line.Replace(_rgxRun.Match(line).Groups["Command"].Value, string.Empty);
 
-                        if (!string.IsNullOrEmpty(blockName))
-                        {
-                            foreach (Block block in _blocks)
-                            {
-                                if (block.Name.Equals(blockName))
-                                {
-                                    ParseScriptLines(lines, (block.LineIndex + 1), end);
-                                    break;
-                                }
-                            }
-                        }
+                        // If we find a block then run the block.
+                        RunBlock(blockName);
                     }
 
                     // Go through each line looking for T14 commands to parse.
@@ -170,17 +169,29 @@ namespace t14
 
                     if (!string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line))
                     {
-                        // This is little trick is difficult to explain but basically it's finding the values of the variables
+                        // This little trick is difficult to explain but basically it's finding the values of the variables
                         // and replacing the names of the variables with the values of the variables on a single line with regex and string replace.
                         if (_rgxVariablesInLine.IsMatch(line))
                         {
                             foreach (Match variableLineMatch in _rgxVariablesInLine.Matches(line))
                             {
-                                line = line.Replace(variableLineMatch.Groups[0].Value.ToString(), _variables.GetByName(variableLineMatch.Groups[1].Value).Value);
+                                // Find the variable by its given variable name.
+                                Variable variable = _variables.GetByName(variableLineMatch.Groups[1].Value);
+
+                                if (variable != null)
+                                {
+                                    // Replace all instances of the variable name with the variable value if variable is not null.
+                                    line = line.Replace(variableLineMatch.Groups[0].Value.ToString(), variable.Value);
+                                }
+                                else
+                                {
+                                    // Replace all instances of the variable name with an empty string if the variable could not be found by its variable name.
+                                    line = line.Replace(variableLineMatch.Groups[0].Value.ToString(), string.Empty);
+                                }
                             }
                         }
 
-                        // Simple output the parsed line that has been processed.
+                        // Simply output the parsed line that has been processed.
                         Console.WriteLine(line);
                     }
                 }
@@ -195,7 +206,8 @@ namespace t14
                     if (block.Name.Equals("main"))
                     {
                         _scriptInitialized = true;
-                        ParseScriptLines(lines, (block.LineIndex + 1), end);
+                        _start = (block.LineIndex + 1);
+                        ParseScriptLines();
                         break;
                     }
                 }
@@ -203,7 +215,27 @@ namespace t14
                 // The "main" block could not be found.
                 if (!_scriptInitialized)
                 {
-                    //Console.WriteLine("main block not found");
+                    Console.WriteLine($"Error: Script requires at least one block named \"main\" to be initialized.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Runs a block based on its block name.
+        /// </summary>
+        /// <param name="blockName">The name of the block to run.</param>
+        private void RunBlock(string blockName)
+        {
+            if (!string.IsNullOrEmpty(blockName))
+            {
+                foreach (Block block in _blocks)
+                {
+                    if (block.Name.Equals(blockName))
+                    {
+                        _start = (block.LineIndex + 1);
+                        ParseScriptLines();
+                        break;
+                    }
                 }
             }
         }
@@ -260,9 +292,21 @@ namespace t14
                 string rightValue = _rgxIf.Match(line).Groups["RightValue"].Value;
                 string blockName = _rgxIf.Match(line).Groups["BlockName"].Value;
 
-                ParseIf(leftValue, @operator, rightValue, blockName);
+                ParseIf(leftValue, @operator, rightValue, blockName, null);
 
                 line = line.Replace(_rgxIf.Match(line).Groups["Command"].Value, string.Empty);
+            }
+            else if (_rgxIfElse.IsMatch(line))
+            {
+                string leftValue = _rgxIfElse.Match(line).Groups["LeftValue"].Value;
+                string @operator = _rgxIfElse.Match(line).Groups["Operator"].Value;
+                string rightValue = _rgxIfElse.Match(line).Groups["RightValue"].Value;
+                string blockToRunIfTrue = _rgxIfElse.Match(line).Groups["BlockToRunIfTrue"].Value;
+                string blockToRunIfFalse = _rgxIfElse.Match(line).Groups["BlockToRunIfFalse"].Value;
+
+                ParseIf(leftValue, @operator, rightValue, blockToRunIfTrue, blockToRunIfFalse);
+
+                line = line.Replace(_rgxIfElse.Match(line).Groups["Command"].Value, string.Empty);
             }
 
             return line;
@@ -290,112 +334,112 @@ namespace t14
             if (_rgxHexToBin.IsMatch(line))
             {
                 string method = _rgxHexToBin.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxHexToBin.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxHexToBin.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromHexToBinary(value));
             }
             else if (_rgxHexToDec.IsMatch(line))
             {
                 string method = _rgxHexToDec.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxHexToDec.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxHexToDec.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromHexToDecimal(value));
             }
             else if (_rgxHexToASCII.IsMatch(line))
             {
                 string method = _rgxHexToASCII.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxHexToASCII.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxHexToASCII.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromHexToASCII(value));
             }
             else if (_rgxBinToDec.IsMatch(line))
             {
                 string method = _rgxBinToDec.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxBinToDec.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxBinToDec.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromBinaryToDecimal(value));
             }
             else if (_rgxBinToHex.IsMatch(line))
             {
                 string method = _rgxBinToHex.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxBinToHex.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxBinToHex.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromBinaryToHex(value));
             }
             else if (_rgxBinToASCII.IsMatch(line))
             {
                 string method = _rgxBinToASCII.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxBinToASCII.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxBinToASCII.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromBinaryToASCII(value));
             }
             else if (_rgxDecToHex.IsMatch(line))
             {
                 string method = _rgxDecToHex.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxDecToHex.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxDecToHex.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToHex(value));
             }
             else if (_rgxDecToBin.IsMatch(line))
             {
                 string method = _rgxDecToBin.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxDecToBin.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxDecToBin.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToBinary(value));
             }
             else if (_rgxDecToASCII.IsMatch(line))
             {
                 string method = _rgxDecToASCII.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxDecToASCII.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxDecToASCII.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToASCII(value));
             }
             else if (_rgxASCIIToBin.IsMatch(line))
             {
                 string method = _rgxASCIIToBin.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxASCIIToBin.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxASCIIToBin.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromASCIIToBinary(value));
             }
             else if (_rgxASCIIToHex.IsMatch(line))
             {
                 string method = _rgxASCIIToHex.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxASCIIToHex.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxASCIIToHex.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromASCIIToHex(value));
             }
             else if (_rgxASCIIToDec.IsMatch(line))
             {
                 string method = _rgxASCIIToDec.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxASCIIToDec.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxASCIIToDec.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromASCIIToDecimal(value));
             }
             else if (_rgxTextToMorse.IsMatch(line))
             {
                 string method = _rgxTextToMorse.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxTextToMorse.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxTextToMorse.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromTextToMorse(value));
             }
             else if (_rgxMorseToText.IsMatch(line))
             {
                 string method = _rgxMorseToText.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxMorseToText.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxMorseToText.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromMorseToText(value));
             }
             else if (_rgxDecToRoman.IsMatch(line))
             {
                 string method = _rgxDecToRoman.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxDecToRoman.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxDecToRoman.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToRoman(value));
             }
             else if (_rgxRomanToDec.IsMatch(line))
             {
                 string method = _rgxRomanToDec.Match(line).Groups["Method"].Value;
-                string value = GetVariableNameFromValue(_rgxRomanToDec.Match(line).Groups["Value"].Value);
+                string value = GetVariableValueFromVariableName(_rgxRomanToDec.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromRomanToDecimal(value));
             }
@@ -403,20 +447,163 @@ namespace t14
             return line;
         }
 
-        private string GetVariableNameFromValue(string value)
+        /// <summary>
+        /// Gets the value of a variable based on a given variable name.
+        /// </summary>
+        /// <param name="variableName">The name of the variable to get the value from.</param>
+        /// <returns>The value of the variable based on the variable name.</returns>
+        private string GetVariableValueFromVariableName(string variableName)
         {
-            if (_rgxVariableName.IsMatch(value))
+            string variableValue = string.Empty;
+
+            if (_rgxVariableName.IsMatch(variableName))
             {
-                string variableName = _rgxVariableName.Match(value).Groups["VariableName"].Value;
-                value = _variables.GetByName(variableName).Value;
+                string variableStr = _rgxVariableName.Match(variableName).Groups["VariableName"].Value;
+
+                Variable variable = _variables.GetByName(variableStr);
+
+                if (variable != null)
+                {
+                    variableValue = variable.Value;
+                }
             }
 
-            return value;
+            return variableValue;
         }
 
-        private void ParseIf(string leftValue, string @operator, string rightValue, string blockName)
+        /// <summary>
+        /// Parses the "::if" commands. For example, "::if [7 == 7]->[go_here]" or "::if [7 == 7]->[go_here_if_true] else [go_here_if_false].
+        /// </summary>
+        /// <param name="leftValue">The value on the left for a comparison check.</param>
+        /// <param name="operator">The operator to use for a comparison check.</param>
+        /// <param name="rightValue">The value on the right for a comparison check.</param>
+        /// <param name="blockToRunIfTrue">The name of the block to run if the comparison check asserts and makes sense.</param>
+        /// <param name="blockToRunIfFalse">The name of the block to run if the comparison check fails.</param>
+        private void ParseIf(string leftValue, string @operator, string rightValue, string blockToRunIfTrue, string blockToRunIfFalse)
         {
+            // "If" conditions based on numeric operations.
+            if (double.TryParse(leftValue, out double leftNumber) && double.TryParse(rightValue, out double rightNumber))
+            {
+                switch (@operator)
+                {
+                    case "==":
+                        if (leftNumber == rightNumber)
+                        {
+                            RunBlock(blockToRunIfTrue);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(blockToRunIfFalse))
+                            {
+                                RunBlock(blockToRunIfFalse);
+                            }
+                        }
+                        break;
 
+                    case "!=":
+                        if (leftNumber != rightNumber)
+                        {
+                            RunBlock(blockToRunIfTrue);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(blockToRunIfFalse))
+                            {
+                                RunBlock(blockToRunIfFalse);
+                            }
+                        }
+                        break;
+
+                    case "<=":
+                        if (leftNumber <= rightNumber)
+                        {
+                            RunBlock(blockToRunIfTrue);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(blockToRunIfFalse))
+                            {
+                                RunBlock(blockToRunIfFalse);
+                            }
+                        }
+                        break;
+
+                    case ">=":
+                        if (leftNumber >= rightNumber)
+                        {
+                            RunBlock(blockToRunIfTrue);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(blockToRunIfFalse))
+                            {
+                                RunBlock(blockToRunIfFalse);
+                            }
+                        }
+                        break;
+
+                    case "<":
+                        if (leftNumber < rightNumber)
+                        {
+                            RunBlock(blockToRunIfTrue);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(blockToRunIfFalse))
+                            {
+                                RunBlock(blockToRunIfFalse);
+                            }
+                        }
+                        break;
+
+                    case ">":
+                        if (leftNumber > rightNumber)
+                        {
+                            RunBlock(blockToRunIfTrue);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(blockToRunIfFalse))
+                            {
+                                RunBlock(blockToRunIfFalse);
+                            }
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                switch (@operator)
+                {
+                    case "==":
+                        if (leftValue.Equals(rightValue))
+                        {
+                            RunBlock(blockToRunIfTrue);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(blockToRunIfFalse))
+                            {
+                                RunBlock(blockToRunIfFalse);
+                            }
+                        }
+                        break;
+
+                    case "!=":
+                        if (!leftValue.Equals(rightValue))
+                        {
+                            RunBlock(blockToRunIfTrue);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(blockToRunIfFalse))
+                            {
+                                RunBlock(blockToRunIfFalse);
+                            }
+                        }
+                        break;
+                }
+            }
         }
     }
 }

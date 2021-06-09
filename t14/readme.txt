@@ -1,5 +1,5 @@
 ﻿T14 Interpreted Scripting Language by Gavin Kendall
-[The information presented in this README refers to version 1.0.0.2]
+[The information presented in this README refers to version 1.0.0.3]
 ================================================================================
 
 
@@ -107,6 +107,26 @@ like this ...
 ::set [black] = [pink]
 [black]
 ::end
+
+
+
+Making Comparisons
+------------------
+You can check the equality of two values with the ::if command and run a block
+if the equality is true or run a block if the equality is false.
+
+For example ...
+::if [7 == 7]->[run_this_block]
+::if [7 == 7]->[run_this_block_if_equal] else [run_this_block_if_not_equal]
+::if [7 > 3]->[run_if_true] else [run_if_false]
+
+The following operators can be used.
+==
+!=
+<
+>
+<=
+>=
 
 
 
