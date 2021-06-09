@@ -450,25 +450,23 @@ namespace t14
         /// <summary>
         /// Gets the value of a variable based on a given variable name.
         /// </summary>
-        /// <param name="variableName">The name of the variable to get the value from.</param>
+        /// <param name="text">The name of the variable to get the value from. It could also be a variable value.</param>
         /// <returns>The value of the variable based on the variable name.</returns>
-        private string GetVariableValueFromVariableName(string variableName)
+        private string GetVariableValueFromVariableName(string text)
         {
-            string variableValue = string.Empty;
-
-            if (_rgxVariableName.IsMatch(variableName))
+            if (_rgxVariableName.IsMatch(text))
             {
-                string variableStr = _rgxVariableName.Match(variableName).Groups["VariableName"].Value;
+                string variableStr = _rgxVariableName.Match(text).Groups["VariableName"].Value;
 
                 Variable variable = _variables.GetByName(variableStr);
 
                 if (variable != null)
                 {
-                    variableValue = variable.Value;
+                    text = variable.Value;
                 }
             }
 
-            return variableValue;
+            return text;
         }
 
         /// <summary>
