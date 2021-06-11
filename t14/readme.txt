@@ -128,6 +128,37 @@ The following operators can be used.
 <=
 >=
 
+You can also use a variable with the ::if command.
+
+For example ...
+::if [[my_variable] == hello]->[run_this_block_if_equal]
+
+
+
+Getting Input
+-------------
+You can get the input from the console by using the ::input command.
+This command requires text to display for output and a variable name.
+
+For example, to ask for the user's name and then display their name ...
+::input [What's your name? ]->[name]
+You said your name is [name].
+
+You could display a command prompt ("> ") and get the input for the
+command then decide what to do. Here's a complete T14 script ...
+
+::start[main]
+::input [> ]->[command_from_prompt]
+::if [[command_from_prompt] == ask for name]->[do_something]
+::end
+
+::start[do_something]
+::input [What's your name? ]->[name]
+Hello [name]!
+::end
+
+
+
 
 
 Conversion Methods

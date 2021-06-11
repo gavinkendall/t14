@@ -42,6 +42,7 @@ namespace t14
         // Variables.
         private readonly VariableCollection _variables;
         private readonly Regex _rgxVariableName = new Regex("^\\[(?<VariableName>[0-9a-zA-Z_-]+)\\]$");
+        private readonly Regex _rgxInputForVariable = new Regex("^(?<Command>::input \\[(?<Output>.+)\\]->\\[(?<VariableName>[0-9a-zA-Z_-]+)\\])$");
         private readonly Regex _rgxVariablesInLine = new Regex("\\[(?<VariableName>[0-9a-zA-Z_-]+)\\]+");
         private readonly Regex _rgxSetVariableWithValue = new Regex("^(?<Command>::set \\[(?<VariableName>[0-9a-zA-Z_-]+)\\] = (?<VariableValue>.+))$");
         private readonly Regex _rgxSetVariableWithVariable = new Regex("^(?<Command>::set \\[(?<VariableWithOldValue>[0-9a-zA-Z_-]+)\\] = \\[(?<VariableWithNewValue>[0-9a-zA-Z_-]+)\\])$");
@@ -308,6 +309,41 @@ namespace t14
 
                 line = line.Replace(_rgxIfElse.Match(line).Groups["Command"].Value, string.Empty);
             }
+            else if (_rgxInputForVariable.IsMatch(line))
+            {
+                string output = _rgxInputForVariable.Match(line).Groups["Output"].Value;
+
+                if (!string.IsNullOrEmpty(output))
+                {
+                    Console.Write(output);
+                }
+
+                string input = Console.ReadLine();
+
+                if (!string.IsNullOrEmpty(input))
+                {
+                    string variableName = _rgxInputForVariable.Match(line).Groups["VariableName"].Value;
+
+                    if (_variables.GetByName(variableName) == null)
+                    {
+                        // This is a new variable to add to the collection with the given input.
+                        Variable variable = new Variable()
+                        {
+                            Name = variableName,
+                            Value = input
+                        };
+
+                        _variables.Add(variable);
+                    }
+                    else
+                    {
+                        // Replace the existing variable's value with the given input.
+                        _variables.GetByName(variableName).Value = input;
+                    }
+                }
+
+                line = line.Replace(_rgxInputForVariable.Match(line).Groups["Command"].Value, string.Empty);
+            }
 
             return line;
         }
@@ -334,112 +370,112 @@ namespace t14
             if (_rgxHexToBin.IsMatch(line))
             {
                 string method = _rgxHexToBin.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxHexToBin.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxHexToBin.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromHexToBinary(value));
             }
             else if (_rgxHexToDec.IsMatch(line))
             {
                 string method = _rgxHexToDec.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxHexToDec.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxHexToDec.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromHexToDecimal(value));
             }
             else if (_rgxHexToASCII.IsMatch(line))
             {
                 string method = _rgxHexToASCII.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxHexToASCII.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxHexToASCII.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromHexToASCII(value));
             }
             else if (_rgxBinToDec.IsMatch(line))
             {
                 string method = _rgxBinToDec.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxBinToDec.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxBinToDec.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromBinaryToDecimal(value));
             }
             else if (_rgxBinToHex.IsMatch(line))
             {
                 string method = _rgxBinToHex.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxBinToHex.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxBinToHex.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromBinaryToHex(value));
             }
             else if (_rgxBinToASCII.IsMatch(line))
             {
                 string method = _rgxBinToASCII.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxBinToASCII.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxBinToASCII.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromBinaryToASCII(value));
             }
             else if (_rgxDecToHex.IsMatch(line))
             {
                 string method = _rgxDecToHex.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxDecToHex.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxDecToHex.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToHex(value));
             }
             else if (_rgxDecToBin.IsMatch(line))
             {
                 string method = _rgxDecToBin.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxDecToBin.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxDecToBin.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToBinary(value));
             }
             else if (_rgxDecToASCII.IsMatch(line))
             {
                 string method = _rgxDecToASCII.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxDecToASCII.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxDecToASCII.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToASCII(value));
             }
             else if (_rgxASCIIToBin.IsMatch(line))
             {
                 string method = _rgxASCIIToBin.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxASCIIToBin.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxASCIIToBin.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromASCIIToBinary(value));
             }
             else if (_rgxASCIIToHex.IsMatch(line))
             {
                 string method = _rgxASCIIToHex.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxASCIIToHex.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxASCIIToHex.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromASCIIToHex(value));
             }
             else if (_rgxASCIIToDec.IsMatch(line))
             {
                 string method = _rgxASCIIToDec.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxASCIIToDec.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxASCIIToDec.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromASCIIToDecimal(value));
             }
             else if (_rgxTextToMorse.IsMatch(line))
             {
                 string method = _rgxTextToMorse.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxTextToMorse.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxTextToMorse.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromTextToMorse(value));
             }
             else if (_rgxMorseToText.IsMatch(line))
             {
                 string method = _rgxMorseToText.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxMorseToText.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxMorseToText.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromMorseToText(value));
             }
             else if (_rgxDecToRoman.IsMatch(line))
             {
                 string method = _rgxDecToRoman.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxDecToRoman.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxDecToRoman.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromDecimalToRoman(value));
             }
             else if (_rgxRomanToDec.IsMatch(line))
             {
                 string method = _rgxRomanToDec.Match(line).Groups["Method"].Value;
-                string value = GetVariableValueFromVariableName(_rgxRomanToDec.Match(line).Groups["Value"].Value);
+                string value = ParseVariable(_rgxRomanToDec.Match(line).Groups["Value"].Value);
 
                 line = line.Replace(method, _convert.FromRomanToDecimal(value));
             }
@@ -450,23 +486,25 @@ namespace t14
         /// <summary>
         /// Gets the value of a variable based on a given variable name.
         /// </summary>
-        /// <param name="text">The name of the variable to get the value from. It could also be a variable value.</param>
-        /// <returns>The value of the variable based on the variable name.</returns>
-        private string GetVariableValueFromVariableName(string text)
+        /// <param name="textOrVariableName">The text representing a string of characters (it could be "hello" or "123")
+        /// or the name of a variable. If it's a variable name then the value of the variable will be returned otherwise
+        /// the given text will be returned.</param>
+        /// <returns>The provided text or the value of the variable depending on if text or a variable name was given.</returns>
+        private string ParseVariable(string textOrVariableName)
         {
-            if (_rgxVariableName.IsMatch(text))
+            if (_rgxVariableName.IsMatch(textOrVariableName))
             {
-                string variableStr = _rgxVariableName.Match(text).Groups["VariableName"].Value;
+                string variableStr = _rgxVariableName.Match(textOrVariableName).Groups["VariableName"].Value;
 
                 Variable variable = _variables.GetByName(variableStr);
 
                 if (variable != null)
                 {
-                    text = variable.Value;
+                    textOrVariableName = variable.Value;
                 }
             }
 
-            return text;
+            return textOrVariableName;
         }
 
         /// <summary>
@@ -479,6 +517,14 @@ namespace t14
         /// <param name="blockToRunIfFalse">The name of the block to run if the comparison check fails.</param>
         private void ParseIf(string leftValue, string @operator, string rightValue, string blockToRunIfTrue, string blockToRunIfFalse)
         {
+            if (string.IsNullOrEmpty(leftValue) || string.IsNullOrEmpty(@operator) || string.IsNullOrEmpty(rightValue) || string.IsNullOrEmpty(blockToRunIfTrue))
+            {
+                return;
+            }
+
+            leftValue = ParseVariable(leftValue);
+            rightValue = ParseVariable(rightValue);
+
             // "If" conditions based on numeric operations.
             if (double.TryParse(leftValue, out double leftNumber) && double.TryParse(rightValue, out double rightNumber))
             {
