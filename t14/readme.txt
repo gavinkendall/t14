@@ -138,7 +138,7 @@ For example ...
 Getting Input
 -------------
 You can get the input from the console by using the ::input command.
-This command requires text to display for output and a variable name.
+This command requires text to display for output and a variable.
 
 For example, to ask for the user's name and then display their name ...
 ::input [What's your name? ]->[name]
