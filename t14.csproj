@@ -7,13 +7,13 @@
     <AssemblyOriginatorKeyFile>t14.snk</AssemblyOriginatorKeyFile>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
-    <Version>1.0.0.2</Version>
+    <Version>1.0.0.3</Version>
     <Authors>Gavin Kendall</Authors>
     <Product>T14</Product>
     <Description>An interpreted language for writing text-based console applications.</Description>
-    <Copyright>2021 Gavin Kendall</Copyright>
-    <AssemblyVersion>1.0.0.2</AssemblyVersion>
-    <FileVersion>1.0.0.2</FileVersion>
+    <Copyright>2022 Gavin Kendall</Copyright>
+    <AssemblyVersion>1.0.0.3</AssemblyVersion>
+    <FileVersion>1.0.0.3</FileVersion>
     <ReleaseVersion>1.0</ReleaseVersion>
   </PropertyGroup>
 
