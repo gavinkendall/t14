@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // <copyright file="Parser.cs" company="Gavin Kendall">
-//     Copyright (c) 2020-2021 Gavin Kendall
+//     Copyright (c) 2020-2022 Gavin Kendall
 // </copyright>
 // <author>Gavin Kendall</author>
 // <summary>A parser responsible for parsing a T14 script.</summary>
@@ -30,6 +30,9 @@ namespace t14
         private readonly Regex _rgxStart = new Regex("^::start\\[(?<BlockName>[0-9a-zA-Z_-]+)\\]$");
         private readonly Regex _rgxEnd = new Regex("^::end$");
 
+        // Insert a new line.
+        private readonly Regex _rgxNewLine = new Regex("^::newline$");
+
         // Run command.
         private readonly Regex _rgxRun = new Regex("^(?<Command>::run\\[(?<BlockName>[0-9a-zA-Z_-]+)\\])$");
 
@@ -53,22 +56,22 @@ namespace t14
 
         // Conversion methods.
         private Convert _convert;
-        private readonly Regex _rgxHexToBin = new Regex("(?<Method>::hex->bin\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxHexToDec = new Regex("(?<Method>::hex->dec\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxHexToASCII = new Regex("(?<Method>::hex->ascii\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxBinToDec = new Regex("(?<Method>::bin->dec\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxBinToHex = new Regex("(?<Method>::bin->hex\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxBinToASCII = new Regex("(?<Method>::bin->ascii\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxDecToHex = new Regex("(?<Method>::dec->hex\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxDecToBin = new Regex("(?<Method>::dec->bin\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxDecToASCII = new Regex("(?<Method>::dec->ascii\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxASCIIToBin = new Regex("(?<Method>::ascii->bin\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxASCIIToHex = new Regex("(?<Method>::ascii->hex\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxASCIIToDec = new Regex("(?<Method>::ascii->dec\\[(?<Value>.+)\\])");
+        private readonly Regex _rgxHexToBin = new Regex("(?<Method>::hex->bin\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxHexToDec = new Regex("(?<Method>::hex->dec\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxHexToASCII = new Regex("(?<Method>::hex->ascii\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxBinToDec = new Regex("(?<Method>::bin->dec\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxBinToHex = new Regex("(?<Method>::bin->hex\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxBinToASCII = new Regex("(?<Method>::bin->ascii\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxDecToHex = new Regex("(?<Method>::dec->hex\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxDecToBin = new Regex("(?<Method>::dec->bin\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxDecToASCII = new Regex("(?<Method>::dec->ascii\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxASCIIToBin = new Regex("(?<Method>::ascii->bin\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxASCIIToHex = new Regex("(?<Method>::ascii->hex\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxASCIIToDec = new Regex("(?<Method>::ascii->dec\\[(?<Value>[^\\s]+)\\])");
         private readonly Regex _rgxTextToMorse = new Regex("(?<Method>::morse\\[(?<Value>.+)\\]$|^::text->morse\\[(?<Value>.+)\\])");
         private readonly Regex _rgxMorseToText = new Regex("(?<Method>::morse->text\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxDecToRoman = new Regex("(?<Method>::dec->roman\\[(?<Value>.+)\\])");
-        private readonly Regex _rgxRomanToDec = new Regex("(?<Method>::roman->dec\\[(?<Value>.+)\\])");
+        private readonly Regex _rgxDecToRoman = new Regex("(?<Method>::dec->roman\\[(?<Value>[^\\s]+)\\])");
+        private readonly Regex _rgxRomanToDec = new Regex("(?<Method>::roman->dec\\[(?<Value>[^\\s]+)\\])");
 
         /// <summary>
         /// Parser constructor.
@@ -167,6 +170,13 @@ namespace t14
 
                     // Go through each line looking for T14 conversion methods to parse.
                     line = ParseConversionMethod(line);
+
+                    // Newline
+                    if (_rgxNewLine.IsMatch(line))
+                    {
+                        line = string.Empty;
+                        Console.WriteLine();
+                    }
 
                     if (!string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line))
                     {

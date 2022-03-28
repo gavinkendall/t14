@@ -6,13 +6,21 @@
 
 # This is a comment and should be ignored by the parser.
 
-# The next line is an example of setting a variable with a value.
-# The type isn't specified. The parser should figure it out.
+# These lines are examples of setting a variable with a value.
 ::set [well-hello-there] = Well hello there
 ::set [star_wars_hero] = General Kenobi
+::set [SW_Episode_1] = The Phantom Menace
+::set [SW_Episode_2] = Attack of the Clones
+::set [SW_Episode_3] = Revenge of the Sith
+::set [SW_Episode_4] = A New Hope
+::set [SW_Episode_5] = The Empire Strikes Back
+::set [SW_Episode_6] = Return of the Jedi
+::set [SW_Episode_7] = The Force Awakens
+::set [SW_Episode_8] = The Last Jedi
+::set [SW_Episode_9] = The Rise of Skywalker
 
-# Here's a number.
-::set [Episode] = 3
+# Here's a number. The type isn't specified because the parser should figure it out.
+::set [Three_As_A_Number] = 3
 
 # Tabs and new lines shouldn't appear in console output.
 		
@@ -24,10 +32,14 @@
 
 # Let's change the value for one of the variables and output again.
 ::set [star_wars_hero] = Jedi Master Luke
-Perhaps it's also a good time to say, "[well-hello-there] [star_wars_hero]!"
+Perhaps it's also a good time to say, "[well-hello-there], [star_wars_hero]!"
 
 # We're going to run a block named "MovieTitle".
 ::run[MovieTitle]
+
+::newline
+And that was it!
+Have a good day!
 
 # The end of the main block.
 ::end
@@ -38,5 +50,58 @@ because it's outside the scope of a ::start and ::end block.
 # This block was called from the main block and has access to te same variables
 # because every variable is global in scope.
 ::start[MovieTitle]
-- Star Wars Episode ::dec->roman[[Episode]] -
+::newline
+::input [Enter the number of a Star Wars episode: ]->[episode_input]
+::if [[episode_input] == 1]->[ShowTitleSW1]
+::if [[episode_input] == 2]->[ShowTitleSW2]
+::if [[episode_input] == 3]->[ShowTitleSW3]
+::if [[episode_input] == 4]->[ShowTitleSW4]
+::if [[episode_input] == 5]->[ShowTitleSW5]
+::if [[episode_input] == 6]->[ShowTitleSW6]
+::if [[episode_input] == 7]->[ShowTitleSW7]
+::if [[episode_input] == 8]->[ShowTitleSW8]
+::if [[episode_input] == 9]->[ShowTitleSW9]
+::if [[episode_input] <= [Three_As_A_Number]]->[OlderStarWarsPrequels]
+::end
+
+::start[OlderStarWarsPrequels]
+The two Star Wars prequel movies that were released before Episode ::dec->roman[[Three_As_A_Number]]:
+::run[ShowTitleSW1]
+::run[ShowTitleSW2]
+::end
+
+::start[ShowTitleSW1]
+Star Wars: Episode ::dec->roman[1] - [SW_Episode_1]
+::end
+
+::start[ShowTitleSW2]
+Star Wars: Episode ::dec->roman[2] - [SW_Episode_2]
+::end
+
+::start[ShowTitleSW3]
+Star Wars: Episode ::dec->roman[3] - [SW_Episode_3]
+::end
+
+::start[ShowTitleSW4]
+Star Wars: Episode ::dec->roman[4] - [SW_Episode_4]
+::end
+
+::start[ShowTitleSW5]
+Star Wars: Episode ::dec->roman[5] - [SW_Episode_5]
+::end
+
+::start[ShowTitleSW6]
+Star Wars: Episode ::dec->roman[6] - [SW_Episode_6]
+::end
+
+::start[ShowTitleSW7]
+Star Wars: Episode ::dec->roman[7] - [SW_Episode_7]
+::end
+
+::start[ShowTitleSW8]
+Star Wars: Episode ::dec->roman[8] - [SW_Episode_8]
+::end
+
+::start[ShowTitleSW9]
+Star Wars: Episode ::dec->roman[9] - [SW_Episode_9]
 ::end

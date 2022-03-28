@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // <copyright file="Variable.cs" company="Gavin Kendall">
-//     Copyright (c) 2020-2021 Gavin Kendall
+//     Copyright (c) 2020-2022 Gavin Kendall
 // </copyright>
 // <author>Gavin Kendall</author>
 // <summary>A class representing a variable.</summary>
